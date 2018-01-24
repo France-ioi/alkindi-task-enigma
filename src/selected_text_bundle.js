@@ -64,6 +64,7 @@ function selectedTextScrolledReducer (state, {payload: {scrollTop, rows}}) {
   let {selectedText} = state;
   if (typeof rows === 'number') {
     const {cellHeight, maxTop} = selectedText;
+    console.log('scroll', 0, maxTop, selectedText.scrollTop, rows, cellHeight);
     scrollTop = Math.max(0, Math.min(maxTop, selectedText.scrollTop + rows * cellHeight));
   }
   selectedText = {...selectedText, scrollTop};
@@ -78,7 +79,7 @@ function selectedTextModeChangedReducer (state, {payload: {mode}}) {
 
 function selectedTextPageColumnsChangedReducer (state, {payload: {columns}}) {
   let {selectedText} = state;
-  selectedText = {...selectedText, pageColumns: columns};
+  selectedText = {...selectedText, pageColumns: columns, selectedRows: [], selectedColumns: []};
   return {...state, selectedText};
 }
 
@@ -141,10 +142,10 @@ function updateGeometry (grid) {
 function SelectedTextViewSelector (state) {
   const {scope, selectedText} = state;
   const {selectedTextResized, selectedTextScrolled, selectedTextModeChanged, selectedTextPageColumnsChanged, selectedTextSelectionChanged} = scope;
-  const {width, height, cellWidth, cellHeight, bottom, pageColumns, visible, mode, scrollTop} = selectedText;
+  const {width, height, cellWidth, cellHeight, bottom, pageRows, pageColumns, visible, mode, scrollTop} = selectedText;
   return {
     selectedTextResized, selectedTextScrolled, selectedTextModeChanged, selectedTextPageColumnsChanged, selectedTextSelectionChanged,
-    width, height, visible, cellWidth, cellHeight, bottom, pageColumns, mode, scrollTop
+    width, height, visible, cellWidth, cellHeight, bottom, pageRows, pageColumns, mode, scrollTop
   };
 }
 

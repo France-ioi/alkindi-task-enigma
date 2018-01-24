@@ -8,6 +8,7 @@ import './style.css';
 import CipheredTextBundle from './ciphered_text_bundle';
 import SelectedTextBundle from './selected_text_bundle';
 import FrequencyAnalysisBundle from './frequency_analysis_bundle';
+import DecodingRotorBundle from './decoding_rotor_bundle';
 import WorkspaceBundle from './workspace_bundle';
 
 export function run (container, options) {
@@ -25,6 +26,7 @@ function TaskBundle (bundle) {
     bundle.include(CipheredTextBundle);
     bundle.include(SelectedTextBundle);
     bundle.include(FrequencyAnalysisBundle);
+    bundle.include(DecodingRotorBundle);
     bundle.include(WorkspaceBundle);
 
     if (process.env.NODE_ENV === 'development') {

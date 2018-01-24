@@ -37,7 +37,7 @@ The task shows only a part of that text.
             bottom: number, /* pixels, bottom position of last line of full text */
             visibleRows: [{row: number, columns: [{col: number, symbol: string(1)}]}]
         },
-        selection: {
+        selectedText: {
             height: number,
             width: number,
             cellWidth: number,
@@ -51,38 +51,33 @@ The task shows only a part of that text.
             visibleRows: [{row: number, columns: [{col: number, symbol: string(1)}], selected: bool}] or null
             visibleColumns: [{col: number, rows: [{row: number, symbol: string(1)}], selected: bool}] or null
         },
-        frequencies: {
+        frequencyAnalysis: {
             current: [{symbol: string(1), probability: number}] /* depends on selection */,
             reference: [{symbol: string(1), probability: number}] /* can be reordered */,
         },
-        substitution: [ /* rotor at position 0 */
-            {cipher: string(1), clear: string(1), locked: bool} /* clear,locked can be edited */
-        ],
-        animation: {
-            state: 'paused' or 'playing' or 'done',
+        decodingRotor: [
+            cells: [{cipher: string(1), clear: string(1), isLocked: bool}] /* always at pos 0; clear,locked can be edited */
+            state: 'start' or 'pause' or 'play' or 'end'
             speed: number /* characters per second */,
-            firstVisiblePos: number,
-            lastVisiblePos: number,
-            currentPos: number,
+            nextDecodedPos: number,
         },
         decipheredText: {
             height: number /* pixels, height of display area */,
             width: number /* pixels, width of display area */,
             cellWidth: number /* pixels /,
             cellHeight: number /* pixels */,
+            pageRows: number,
+            pageColumns: number,
             scrollTop: number /* pixels, scroll position */,
             bottom: number,
-            rows: number /* computed */,
-            colWidth: number /* pixels */,
-            columns: number /* computed */,
             visibleRows: [
                 {
                     row: number,
                     columns: [{
                         col: number,
                         cipher: string(1),
-                        clear: string(1),
                         selected: bool,
+                        clear: string(1),
                         locked: bool
                     }]
                 }
