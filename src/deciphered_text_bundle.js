@@ -23,6 +23,8 @@ export default function (bundle) {
     /* {scrollTop: number} */);
   bundle.addReducer('decipheredTextScrolled', decipheredTextScrolledReducer);
 
+  bundle.addLateReducer(decipheredTextLateReducer);
+
   bundle.defineView('DecipheredText', DecipheredTextViewSelector, DecipheredTextView);
 }
 
@@ -37,7 +39,7 @@ function appInitReducer (state, _action) {
 
 function taskInitReducer (state, _action) {
   let {decipheredText, taskData: {cipherText}} = state;
-  decipheredText = updateGridVisibleRows({...decipheredText, nbCells: cipherText.length}, gridUpdateOptions(state));
+  decipheredText = {...decipheredText, nbCells: cipherText.length};
   return {...state, decipheredText};
 }
 
@@ -45,20 +47,29 @@ function decipheredTextResizedReducer (state, {payload: {width}}) {
   let {decipheredText} = state;
   decipheredText = {...decipheredText, width, height: 4 * decipheredText.cellHeight};
   decipheredText = updateGridGeometry(decipheredText);
-  decipheredText = updateGridVisibleRows(decipheredText, gridUpdateOptions(state));
   return {...state, decipheredText};
-}
-
-function gridUpdateOptions (state) {
-  const {taskData: {cipherText}} = state;
-  const getCell = index => ({ciphered: cipherText[index], clear: 'Z', current: false, locked: false});
-  return {getCell};
 }
 
 function decipheredTextScrolledReducer (state, {payload: {scrollTop}}) {
   let {decipheredText} = state;
   decipheredText = {...decipheredText, scrollTop};
-  decipheredText = updateGridVisibleRows(decipheredText, gridUpdateOptions(state));
+  return {...state, decipheredText};
+}
+
+function decipheredTextLateReducer (state, action) {
+  let {taskData, decodingRotor, decipheredText} = state;
+  if (!taskData) return state;
+  const {cipherText} = taskData;
+  const {position} = decodingRotor;
+  function getCell (index) {
+    return {
+      ciphered: cipherText[index],
+      clear: index <= position ? 'Z' : ' ',
+      current: index === position,
+      locked: false
+    };
+  }
+  decipheredText = updateGridVisibleRows(decipheredText, {getCell});
   return {...state, decipheredText};
 }
 
@@ -82,7 +93,7 @@ class DecipheredTextView extends React.PureComponent {
           {(visibleRows||[]).map(({index, columns}) =>
             <div key={index} style={{position: 'absolute', top: `${index * cellHeight}px`}}>
               {columns.map(({index, ciphered, clear, locked, current}) =>
-                <div key={index} style={{position: 'absolute', left: `${index * cellWidth}px`, width: `${cellWidth}px`, height: `42px`, border: 'solid #777', borderWidth: '1px 0'}}>
+                <div key={index} style={{position: 'absolute', left: `${index * cellWidth}px`, width: `${cellWidth}px`, height: `42px`, border: 'solid #777', borderWidth: '1px 0', backgroundColor: current ? '#aaa' : '#fff'}}>
                   <div style={{width: '100%', height: '20px', borderBottom: '1px solid #ccc', textAlign: 'center'}}>{ciphered || ' '}</div>
                   <div style={{width: '100%', height: '20px', textAlign: 'center'}}>{clear || ' '}</div>
                 </div>)}

@@ -28,16 +28,16 @@ function appInitReducer (state, _action) {
     status: 'start',
     speed: 1.0,
     position: 0,
-    startPosition: 0, /* XXX */
-    endPosition: 100 /* XXX */
+    startPosition: 0,
+    endPosition: 0
   }};
 }
 
 function taskInitReducer (state, _action) {
-  let {decodingRotor, taskData: {alphabet}} = state;
+  let {decodingRotor, taskData: {alphabet, cipherText}} = state;
   const cells = alphabet.split('')
     .map(c => ({cipher: c, clear: null, isLocked: false}));
-  decodingRotor = {...decodingRotor, cells};
+  decodingRotor = {...decodingRotor, cells, endPosition: cipherText.length - 1};
   return {...state, decodingRotor};
 }
 
