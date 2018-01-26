@@ -117,12 +117,13 @@ class DecodingRotorView extends React.PureComponent {
       <div style={{width: `${20*alphabetSize}px`, margin: '0 auto'}}>
         <div className='clearfix'>
           {range(0, alphabetSize).map(index => {
-            const shiftedIndex = (index + shift) % alphabetSize;
-            const {cipher, clear, isLocked} = cells[shiftedIndex];
-            const isEditing = this.state.editing === shiftedIndex;
+            const {clear, isLocked} = cells[index];
+            const isEditing = this.state.editing === index;
             const isLast = alphabetSize === index + 1;
+            const shiftedIndex = (index + shift) % alphabetSize;
+            const {cipher} = cells[shiftedIndex];
             return (
-              <DecodingRotorCell key={index} index={shiftedIndex} isLast={isLast}
+              <DecodingRotorCell key={index} index={index} isLast={isLast}
                 symbol={cipher} target={clear} isLocked={isLocked} isEditing={isEditing}
                 onChangeTarget={this.onChangeClear} onChangeLocked={this.onChangeLocked}
                 onEditingStarted={this.onEditingStarted} />);
