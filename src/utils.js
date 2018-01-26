@@ -40,19 +40,21 @@ export function updateGridGeometry (grid) {
   return {...grid, pageColumns, pageRows, scrollTop: Math.min(maxTop, scrollTop), bottom, maxTop};
 }
 
-export function updateGridVisibleRows (grid) {
-  const {cellHeight, pageColumns, pageRows, cells, scrollTop, selectedRows} = grid;
-  if (!cells || typeof scrollTop !== 'number') {
+export function updateGridVisibleRows (grid, options) {
+  options = options || {};
+  const {cellHeight, pageColumns, pageRows, scrollTop, selectedRows} = grid;
+  if (typeof scrollTop !== 'number') {
     return grid;
   }
   const firstRow = Math.floor(scrollTop / cellHeight);
   const lastRow = firstRow + pageRows - 1;
   const rows = [];
+  const getCell = options.getCell || (grid.cells ? index => ({cell: grid.cells[index]}) : index => null);
   for (let rowIndex = firstRow; rowIndex <= lastRow; rowIndex += 1) {
     const rowStartPos = rowIndex * pageColumns;
     const rowCells = [];
     for (let colIndex = 0; colIndex < pageColumns; colIndex += 1) {
-      rowCells.push({index: colIndex, cell: cells[rowStartPos + colIndex]});
+      rowCells.push({index: colIndex, ...getCell(rowStartPos + colIndex)});
     }
     const selected = selectedRows && sortedArrayHasElement(selectedRows, rowIndex);
     rows.push({index: rowIndex, selected, columns: rowCells});
@@ -60,19 +62,20 @@ export function updateGridVisibleRows (grid) {
   return {...grid, visible: {rows}};
 }
 
-export function updateGridVisibleColumns (grid) {
+export function updateGridVisibleColumns (grid, options) {
+  options = options || {};
   const {cellHeight, pageColumns, pageRows, cells, scrollTop, selectedColumns} = grid;
-  if (!cells || typeof scrollTop !== 'number') {
+  if (typeof scrollTop !== 'number') {
     return grid;
   }
   const firstRow = Math.floor(scrollTop / cellHeight);
   const lastRow = firstRow + pageRows - 1;
   const columns = [];
+  const getCell = options.getCell || (grid.cells ? index => ({cell: grid.cells[index]}) : index => null);
   for (let colIndex = 0; colIndex < pageColumns; colIndex += 1) {
     const colCells = [];
     for (let rowIndex = firstRow; rowIndex <= lastRow; rowIndex += 1) {
-      const cell = cells[rowIndex * pageColumns + colIndex];
-      colCells.push({index: rowIndex, cell});
+      colCells.push({index: rowIndex, ...getCell(rowIndex * pageColumns + colIndex)});
     }
     const selected = selectedColumns && sortedArrayHasElement(selectedColumns, colIndex);
     columns.push({index: colIndex, selected, rows: colCells});
@@ -80,13 +83,13 @@ export function updateGridVisibleColumns (grid) {
   return {...grid, visible: {columns}};
 }
 
-export function updateGridVisibleArea (grid) {
+export function updateGridVisibleArea (grid, options) {
   /* TODO: build a cache key, store it in the grid, use it to skip computation when unchanged */
   if (grid.mode === 'rows') {
-    return updateGridVisibleRows(grid);
+    return updateGridVisibleRows(grid, options);
   }
   if (grid.mode === 'columns') {
-    return updateGridVisibleColumns(grid);
+    return updateGridVisibleColumns(grid, options);
   }
   return grid;
 }
