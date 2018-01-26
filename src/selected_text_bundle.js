@@ -45,13 +45,14 @@ function appInitReducer (state, _action) {
     scrollTop: 0,
     mode: 'rows',
     selectedRows: [],
-    selectedColumns: []
+    selectedColumns: [],
+    nbCells: 0
   }};
 }
 
 function taskInitReducer (state, _action) {
   const {cipherText} = state.taskData;
-  return update(state, {selectedText: {cells: {$set: cipherText}}});
+  return update(state, {selectedText: {cells: {$set: cipherText}, nbCells: {$set: cipherText.length}}});
 }
 
 function selectedTextResizedReducer (state, {payload: {width, height}}) {

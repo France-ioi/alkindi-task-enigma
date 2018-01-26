@@ -23,13 +23,14 @@ function appInitReducer (state, _action) {
   return {...state, cipheredText: {
     cellWidth: 15,
     cellHeight: 18,
-    scrollTop: 0
+    scrollTop: 0,
+    nbCells: 0
   }};
 }
 
 function taskInitReducer (state, _action) {
   let {cipheredText, taskData: {cipherText}} = state;
-  cipheredText = {...cipheredText, cells: cipherText};
+  cipheredText = {...cipheredText, cells: cipherText, nbCells: cipherText.length};
   cipheredText = updateGridVisibleRows(cipheredText);
   return {...state, cipheredText};
 }

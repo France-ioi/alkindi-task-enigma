@@ -3,19 +3,19 @@ import React from 'react';
 
 export default function (bundle) {
 
-  bundle.use('CipheredText', 'SelectedText', 'FrequencyAnalysis', 'DecodingRotor');
+  bundle.use('CipheredText', 'SelectedText', 'FrequencyAnalysis', 'DecodingRotor', 'DecipheredText');
   bundle.defineView('Workspace', WorkspaceSelector, Workspace);
 
 }
 
 function WorkspaceSelector (state) {
-  const {CipheredText, SelectedText, FrequencyAnalysis, DecodingRotor} = state.scope;
-  return {CipheredText, SelectedText, FrequencyAnalysis, DecodingRotor};
+  const {CipheredText, SelectedText, FrequencyAnalysis, DecodingRotor, DecipheredText} = state.scope;
+  return {CipheredText, SelectedText, FrequencyAnalysis, DecodingRotor, DecipheredText};
 }
 
 class Workspace extends React.PureComponent {
   render () {
-    const {CipheredText, SelectedText, FrequencyAnalysis, DecodingRotor} = this.props;
+    const {CipheredText, SelectedText, FrequencyAnalysis, DecodingRotor, DecipheredText} = this.props;
     return (
       <div>
         <h2>{"Message chiffré"}</h2>
@@ -26,6 +26,8 @@ class Workspace extends React.PureComponent {
         <FrequencyAnalysis/>
         <h2>{"Rotor de déchiffrement"}</h2>
         <DecodingRotor/>
+        <h2>{"Texte déchiffré"}</h2>
+        <DecipheredText/>
       </div>
     );
   }

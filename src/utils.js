@@ -28,26 +28,23 @@ export function sortedArrayHasElement (a, x) {
 
 
 export function updateGridGeometry (grid) {
-  const {width, height, cellWidth, cellHeight, scrollTop, cells} = grid;
+  const {width, height, cellWidth, cellHeight, scrollTop, nbCells} = grid;
   const scrollBarWidth = 20;
   const pageColumns = Math.max(40, Math.floor((width - scrollBarWidth) / cellWidth));
   const pageRows = Math.max(8, Math.ceil(height / cellHeight));
-  let bottom = 100, maxTop = 0;
-  if (cells) {
-    bottom = Math.ceil(cells.length / pageColumns) * cellHeight - 1;
-    maxTop = Math.max(0, bottom + 1 - pageRows * cellHeight);
-  }
+  const bottom = Math.ceil(nbCells / pageColumns) * cellHeight - 1;
+  const maxTop = Math.max(0, bottom + 1 - pageRows * cellHeight);
   return {...grid, pageColumns, pageRows, scrollTop: Math.min(maxTop, scrollTop), bottom, maxTop};
 }
 
 export function updateGridVisibleRows (grid, options) {
   options = options || {};
-  const {cellHeight, pageColumns, pageRows, scrollTop, selectedRows} = grid;
+  const {nbCells, cellHeight, pageColumns, pageRows, scrollTop, selectedRows} = grid;
   if (typeof scrollTop !== 'number') {
     return grid;
   }
   const firstRow = Math.floor(scrollTop / cellHeight);
-  const lastRow = firstRow + pageRows - 1;
+  const lastRow = Math.min(firstRow + pageRows - 1, Math.ceil(nbCells / pageColumns) - 1);
   const rows = [];
   const getCell = options.getCell || (grid.cells ? index => ({cell: grid.cells[index]}) : index => null);
   for (let rowIndex = firstRow; rowIndex <= lastRow; rowIndex += 1) {
