@@ -19,14 +19,11 @@ export default function (bundle) {
   bundle.addReducer('decodingRotorStepBackward', decodingRotorStepBackwardReducer);
   bundle.defineAction('decodingRotorStepForward', 'DecodingRotor.StepForward');
   bundle.addReducer('decodingRotorStepForward', decodingRotorStepForwardReducer);
-  bundle.defineAction('decodingRotorEject', 'DecodingRotor.Eject');
-  bundle.addReducer('decodingRotorEject', decodingRotorEjectReducer);
   bundle.addSaga(decodingRotorSaga);
 }
 
 function appInitReducer (state, _action) {
   return {...state, decodingRotor: {
-    ejected: false,
     cells: [],
     status: 'start',
     speed: 1.0,
@@ -92,63 +89,52 @@ function decodingRotorStepForwardReducer (state, action) {
   }});
 }
 
-function decodingRotorEjectReducer (state, action) {
-  return update(state, {decodingRotor: {ejected: {$set: true}, status: {$set: 'pause'}}});
-}
-
 function* decodingRotorSaga () {
   /* TODO */
 }
 
 function DecodingRotorSelector (state) {
-  const {scope, taskData: {alphabet}, decodingRotor: {status, cells, position, ejected}} = state;
+  const {scope, taskData: {alphabet}, decodingRotor: {status, cells, position}} = state;
   const {
     decodingRotorCellLockChanged, decodingRotorCellClearChanged,
-    decodingRotorStatusChanged, decodingRotorEject,
+    decodingRotorStatusChanged,
     decodingRotorStepBackward, decodingRotorStepForward
   } = scope;
   const shift = position % alphabet.length;
   return {
     decodingRotorCellLockChanged, decodingRotorCellClearChanged,
     decodingRotorStatusChanged, decodingRotorStepBackward,
-    decodingRotorStepForward, decodingRotorEject,
-    ejected, alphabet, status, cells, shift: shift
+    decodingRotorStepForward,
+    alphabet, status, cells, shift: shift
   };
 }
 
 class DecodingRotorView extends React.PureComponent {
   render () {
-    const {ejected, alphabet, status, shift, cells} = this.props;
+    const {alphabet, status, shift, cells} = this.props;
     const alphabetSize = alphabet.length;
     return (
       <div style={{width: `${20*alphabetSize}px`, margin: '0 auto'}}>
-        {ejected
-          ? <div>
-              <p>{"Oh non !  Tu as ejecté le rotor et il s'est cassé en tombant. "}</p>
-              <p>{"Impossible de continuer l'épreuve, tu es disqualifié. "}</p>
-              <p>{"À l'avenir réflechis avant de cliquer ! "}<i className='fa fa-smile-o'/></p>
-            </div>
-          : <div className='clearfix'>
-              {range(0, alphabetSize).map(index => {
-                const shiftedIndex = (index + shift) % alphabetSize;
-                const {cipher, clear, isLocked} = cells[shiftedIndex];
-                const isEditing = this.state.editing === shiftedIndex;
-                const isLast = alphabetSize === index + 1;
-                return (
-                  <DecodingRotorCell key={index} index={shiftedIndex} isLast={isLast}
-                    symbol={cipher} target={clear} isLocked={isLocked} isEditing={isEditing}
-                    onChangeTarget={this.onChangeClear} onChangeLocked={this.onChangeLocked}
-                    onEditingStarted={this.onEditingStarted} />);
-              })}
-            </div>}
+        <div className='clearfix'>
+          {range(0, alphabetSize).map(index => {
+            const shiftedIndex = (index + shift) % alphabetSize;
+            const {cipher, clear, isLocked} = cells[shiftedIndex];
+            const isEditing = this.state.editing === shiftedIndex;
+            const isLast = alphabetSize === index + 1;
+            return (
+              <DecodingRotorCell key={index} index={shiftedIndex} isLast={isLast}
+                symbol={cipher} target={clear} isLocked={isLocked} isEditing={isEditing}
+                onChangeTarget={this.onChangeClear} onChangeLocked={this.onChangeLocked}
+                onEditingStarted={this.onEditingStarted} />);
+          })}
+        </div>
         <div style={{textAlign: 'center'}}>
           <div className='btn-group'>
-            <Button onClick={this.onFastBackwardClicked} disabled={ejected} style={{width: '40px'}} active={status === 'start'}><i className='fa fa-fast-backward'/></Button>
-            <Button onClick={this.onStepBackwardClicked} disabled={ejected} style={{width: '40px'}}><i className='fa fa-step-backward'/></Button>
-            <Button onClick={this.onPlayClicked} disabled={ejected} style={{width: '40px'}} active={status === 'play'}><i className='fa fa-play'/></Button>
-            <Button onClick={this.onStepForwardClicked} disabled={ejected} style={{width: '40px'}}><i className='fa fa-step-forward'/></Button>
-            <Button onClick={this.onFastForwardClicked} disabled={ejected} style={{width: '40px'}} active={status === 'end'}><i className='fa fa-fast-forward'/></Button>
-            <Button onClick={this.onEjectClicked} disabled={ejected} style={{width: '40px'}}><i className='fa fa-eject'/></Button>
+            <Button onClick={this.onFastBackwardClicked} style={{width: '40px'}} active={status === 'start'}><i className='fa fa-fast-backward'/></Button>
+            <Button onClick={this.onStepBackwardClicked} style={{width: '40px'}}><i className='fa fa-step-backward'/></Button>
+            <Button onClick={this.onPlayClicked} style={{width: '40px'}} active={status === 'play'}><i className='fa fa-play'/></Button>
+            <Button onClick={this.onStepForwardClicked} style={{width: '40px'}}><i className='fa fa-step-forward'/></Button>
+            <Button onClick={this.onFastForwardClicked} style={{width: '40px'}} active={status === 'end'}><i className='fa fa-fast-forward'/></Button>
           </div>
         </div>
       </div>
@@ -169,9 +155,6 @@ class DecodingRotorView extends React.PureComponent {
   };
   onFastForwardClicked = (_event) => {
     this.props.dispatch({type: this.props.decodingRotorStatusChanged, payload: {status: 'end'}});
-  };
-  onEjectClicked = (_event) => {
-    this.props.dispatch({type: this.props.decodingRotorEject});
   };
   onChangeClear = (index, value) => {
     this.props.dispatch({type: this.props.decodingRotorCellClearChanged, payload: {index, value}});
