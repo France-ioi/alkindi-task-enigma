@@ -59,15 +59,26 @@ function decipheredTextScrolledReducer (state, {payload: {scrollTop}}) {
 function decipheredTextLateReducer (state, action) {
   let {taskData, decodingRotor, decipheredText} = state;
   if (!taskData) return state;
-  const {cipherText} = taskData;
-  const {position} = decodingRotor;
+  const {alphabet, cipherText} = taskData;
+  const {position, shift, cells} = decodingRotor;
   function getCell (index) {
-    return {
+    const result = {
       ciphered: cipherText[index],
-      clear: index <= position ? 'Z' : ' ',
+      clear: ' ',
       current: index === position,
-      locked: false
+      isLocked: false
     };
+    if (index <= position) {
+      const cipherRank = alphabet.indexOf(result.ciphered);
+      if (cipherRank !== -1) {
+        const shift = alphabet.length - (index % alphabet.length);
+        const clearRank = (cipherRank + shift) % alphabet.length;
+        const {clear, isLocked} = cells[clearRank];
+        result.clear = clear;
+        result.isLocked = isLocked;
+      }
+    }
+    return result;
   }
   decipheredText = updateGridVisibleRows(decipheredText, {getCell});
   return {...state, decipheredText};
