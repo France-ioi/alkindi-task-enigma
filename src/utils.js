@@ -1,4 +1,6 @@
 
+import update from 'immutability-helper';
+
 function bisect (a, x) {
     let lo = 0, hi = a.length, mid;
     while (lo < hi) {
@@ -89,4 +91,111 @@ export function updateGridVisibleArea (grid, options) {
     return updateGridVisibleColumns(grid, options);
   }
   return grid;
+}
+
+/* ROTOR functions */
+
+
+export function makeRotor (alphabet, {schedule, editableRow}) {
+  const size = alphabet.length;
+  const cells = alphabet.split('') .map(function (c, rank) {
+    return {rank, rotating: c, editable: null, locked: false, conflict: false};
+  });
+  const nullPerm = new Array(size).fill(-1);
+  return {alphabet, size, schedule, editableRow, cells, forward: nullPerm, backward: nullPerm};
+}
+
+export function editRotorCell (rotor, rank, symbol) {
+  rotor = update(rotor, {cells: {[rank]: {editable: {$set: symbol}}}});
+  return updatePerms(markRotorConflicts(rotor));
+}
+
+function markRotorConflicts (rotor) {
+  const counts = new Map();
+  const changes = {};
+  for (let {rank, editable, conflict} of rotor.cells) {
+    if (conflict) {
+      changes[rank] = {conflict: {$set: false}};
+    }
+    if (editable !== null) {
+      if (!counts.has(editable)) {
+        counts.set(editable, [rank]);
+      } else {
+        counts.get(editable).push(rank);
+      }
+    }
+  }
+  for (let ranks of counts.values()) {
+    if (ranks.length > 1) {
+      for (let rank of ranks) {
+        changes[rank] = {conflict: {$set: true}};
+      }
+    }
+  }
+  return update(rotor, {cells: changes});
+}
+
+function updatePerms (rotor) {
+  const {size, alphabet, cells} = rotor;
+  const forward = new Array(size).fill(-1);
+  const backward = new Array(size).fill(-1);
+  for (let cell of cells) {
+    if (cell.editable !== null && !cell.conflict) {
+      const source = alphabet.indexOf(cell.editable);
+      forward[source] = cell.rank;
+      backward[cell.rank] = source;
+    }
+  }
+  return {...rotor, forward, backward};
+}
+
+export function getRotorShift (rotor, position) {
+  const {size, schedule} = rotor;
+  return schedule === 0 ? 0 : Math.floor(position / schedule) % size;
+}
+
+export function applyRotors (rotors, position, rank) {
+  const result = {rank, locks: 0};
+  for (let rotorIndex = 0; rotorIndex < rotors.length; rotorIndex += 1) {
+    applyRotor(rotors[rotorIndex], position, result);
+    if (result.rank === -1) {
+      break;
+    }
+  }
+  return result;
+}
+
+function applyRotor (rotor, position, result) {
+  const shift = getRotorShift(rotor, position);
+  let rank = result.rank;
+  /* Negative shift to the static top row before permutation. */
+  if (rotor.editableRow === 'bottom') {
+    rank = applyShift(rotor.size, -shift, rank);
+  }
+  /* Save the cell carrying the operation's attributes. */
+  const cell = rotor.cells[rank];
+  /* Apply the permutation. */
+  rank = rotor.forward[rank];
+  /* Positive shift to the static bottom row after permutation. */
+  if (rotor.editableRow === 'top') {
+    rank = applyShift(rotor.size, shift, rank);
+  }
+  /* Save new rank (can be -1) and attributes. */
+  result.rank = rank;
+  if (cell.locked) {
+    result.locks += 1;
+  }
+  if (cell.collision) {
+    result.collision = true;
+  }
+}
+
+function applyShift (mod, amount, rank) {
+  if (rank !== -1) {
+    if (amount < 0) {
+      amount += mod;
+    }
+    rank = (rank + amount) % mod;
+  }
+  return rank;
 }

@@ -8,7 +8,8 @@ import './style.css';
 import CipheredTextBundle from './ciphered_text_bundle';
 import SelectedTextBundle from './selected_text_bundle';
 import FrequencyAnalysisBundle from './frequency_analysis_bundle';
-import DecodingRotorBundle from './decoding_rotor_bundle';
+import SchedulingBundle from './scheduling_bundle';
+import RotorsBundle from './rotors_bundle';
 import DecipheredTextBundle from './deciphered_text_bundle';
 import WorkspaceBundle from './workspace_bundle';
 
@@ -27,7 +28,8 @@ function TaskBundle (bundle) {
     bundle.include(CipheredTextBundle);
     bundle.include(SelectedTextBundle);
     bundle.include(FrequencyAnalysisBundle);
-    bundle.include(DecodingRotorBundle);
+    bundle.include(SchedulingBundle);
+    bundle.include(RotorsBundle);
     bundle.include(DecipheredTextBundle);
     bundle.include(WorkspaceBundle);
 
