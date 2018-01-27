@@ -110,6 +110,10 @@ export function editRotorCell (rotor, rank, symbol) {
   return updatePerms(markRotorConflicts(rotor));
 }
 
+export function lockRotorCell (rotor, rank, locked) {
+  return update(rotor, {cells: {[rank]: {locked: {$set: locked}}}});
+}
+
 function markRotorConflicts (rotor) {
   const counts = new Map();
   const changes = {};
