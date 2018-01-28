@@ -11,11 +11,9 @@ function appInitReducer (state, _action) {
 function frequencyAnalysisLateReducer (state) {
   if (state.frequencyAnalysis && state.taskData) {
     let {taskData: {alphabet, referenceFrequencies, frequencies, cipherText}, selectedText: {mode, pageColumns, selectedRows, selectedColumns}, frequencyAnalysis} = state;
-    const alphabetSize = alphabet.length;
     let textFrequencies = [];
     if (mode === 'rows' && selectedRows.length !== 0) {
       const freqMap = new Map(alphabet.split('').map(c => [c, 0]));
-      let totalCount = 0;
       for (let index of selectedRows) {
         const startPos = index * pageColumns;
         const endPos = startPos + pageColumns - 1;
@@ -117,7 +115,7 @@ class FrequencyAnalysisView extends React.PureComponent {
 
 class TextFrequencyBox extends React.PureComponent {
   render () {
-    const {index, cell, scale} = this.props;
+    const {cell, scale} = this.props;
     if (!cell) return false;
     return (
       <div style={{position: 'absolute', top: '0px'}}>
@@ -134,7 +132,7 @@ class TextFrequencyBox extends React.PureComponent {
 
 class ReferenceFrequencyBox extends React.PureComponent {
   render () {
-    const {index, cell, scale} = this.props;
+    const {cell, scale} = this.props;
     return (
       <div style={{position: 'absolute', top: '56px', cursor: 'move'}}>
         <div style={{width: '17px', height: '20px', border: '1px solid black', marginBottom: '2px', textAlign: 'center'}}>
@@ -156,4 +154,4 @@ export default {
   views: {
     FrequencyAnalysis: connect(FrequencyAnalysisSelector)(FrequencyAnalysisView)
   },
-}
+};

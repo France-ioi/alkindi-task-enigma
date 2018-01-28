@@ -174,4 +174,4 @@ export default {
         yield takeEvery(actions.taskLoadEvent, taskLoadEventSaga);
         yield takeEvery(actions.taskGradeAnswerEvent, taskGradeAnswerEventSaga);
     }
-}
+};

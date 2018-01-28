@@ -34,7 +34,6 @@ function selectedTextScrolledReducer (state, {payload: {scrollTop, rows}}) {
   let {selectedText} = state;
   if (typeof rows === 'number') {
     const {cellHeight, maxTop} = selectedText;
-    console.log('scroll', 0, maxTop, selectedText.scrollTop, rows, cellHeight);
     scrollTop = Math.max(0, Math.min(maxTop, selectedText.scrollTop + rows * cellHeight));
   }
   selectedText = {...selectedText, scrollTop};
@@ -251,4 +250,4 @@ export default {
   views: {
     SelectedText: connect(SelectedTextViewSelector)(SelectedTextView)
   },
-}
+};

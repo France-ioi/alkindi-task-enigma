@@ -46,7 +46,6 @@ function* appInitSaga ({payload: {taskToken, options, platform}}) {
     const actions = yield select(({actions}) => actions);
     let taskChannel, taskApi, platformApi, serverApi;
     try {
-        console.log('taskToken', taskToken);
         serverApi = makeServerApi(options.server_module, taskToken);
         taskChannel = yield call(makeTaskChannel);
         taskApi = (yield take(taskChannel)).task;
@@ -120,4 +119,4 @@ export default {
         PlatformBundle,
         HintsBundle,
     ]
-}
+};

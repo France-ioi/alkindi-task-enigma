@@ -20,7 +20,7 @@ function appInitReducer (state, _action) {
 }
 
 function taskInitReducer (state, _action) {
-  let {scheduling, taskData: {alphabet, cipherText}} = state;
+  let {scheduling, taskData: {cipherText}} = state;
   scheduling = {...scheduling, endPosition: cipherText.length - 1};
   return {...state, scheduling};
 }
@@ -40,7 +40,7 @@ function schedulingStatusChangedReducer (state, {payload: {status}}) {
   return update(state, {scheduling: changes});
 }
 
-function schedulingStepBackwardReducer (state, action) {
+function schedulingStepBackwardReducer (state, _action) {
   const {scheduling: {position}} = state;
   if (position === 0) return state;
   return update(state, {scheduling: {
@@ -49,7 +49,7 @@ function schedulingStepBackwardReducer (state, action) {
   }});
 }
 
-function schedulingStepForwardReducer (state, action) {
+function schedulingStepForwardReducer (state, _action) {
   const {scheduling: {position, endPosition}} = state;
   if (position === endPosition) return state;
   return update(state, {scheduling: {
@@ -65,7 +65,7 @@ function schedulingJumpReducer (state, {payload: {position}}) {
   }});
 }
 
-function schedulingTickReducer (state, action) {
+function schedulingTickReducer (state, _action) {
   const {scheduling: {position, endPosition}} = state;
   if (position === endPosition) {
     return update(state, {scheduling: {
@@ -90,7 +90,7 @@ function schedulingLateReducer (state) {
 function* schedulingSaga () {
   const {schedulingTick} = yield select(({actions}) => actions);
   const statusChangingActions = yield select(({actions}) => ['schedulingStatusChanged', 'schedulingStepBackward', 'schedulingStepForward', 'schedulingJump'].map(name => actions[name]));
-  yield takeLatest(statusChangingActions, function* (action) {
+  yield takeLatest(statusChangingActions, function* () {
     let status = yield select(({scheduling: {status}}) => status);
     if (status === 'play') {
       while (true) {
@@ -106,7 +106,7 @@ function* schedulingSaga () {
 }
 
 function SchedulingControlsSelector (state) {
-  const {actions, taskData: {alphabet}, scheduling: {status, position}} = state;
+  const {actions, taskData: {alphabet}, scheduling: {status}} = state;
   const {schedulingStatusChanged, schedulingStepBackward, schedulingStepForward} = actions;
   const alphabetSize = alphabet.length;
   return {schedulingStatusChanged, schedulingStepBackward, schedulingStepForward, status, alphabetSize};
@@ -166,4 +166,4 @@ export default {
   views: {
     SchedulingControls: connect(SchedulingControlsSelector)(SchedulingControlsView),
   }
-}
+};

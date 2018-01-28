@@ -39,7 +39,7 @@ function decipheredTextScrolledReducer (state, {payload: {scrollTop}}) {
   return {...state, decipheredText};
 }
 
-function decipheredTextLateReducer (state, action) {
+function decipheredTextLateReducer (state, _action) {
   if (!state.taskData) return state;
   let {taskData: {alphabet, cipherText}, scheduling: {position}, rotors, decipheredText} = state;
   function getCell (index) {
@@ -145,4 +145,4 @@ export default {
   views: {
     DecipheredText: connect(DecipheredTextViewSelector)(DecipheredTextView),
   }
-}
+};

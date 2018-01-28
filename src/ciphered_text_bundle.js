@@ -93,4 +93,4 @@ export default {
   views: {
     CipheredText: connect(CipherTextViewSelector)(CipherTextView),
   }
-}
+};

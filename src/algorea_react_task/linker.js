@@ -11,12 +11,12 @@ export default function link (rootBundle, features) {
   for (let feature of features) {
     feature.prepare(app);
   }
-  linkBundle(rootBundle, features, app)
+  linkBundle(rootBundle, features, app);
   for (let feature of features) {
     feature.finalize(app);
   }
   return app;
-};
+}
 
 function linkBundle (bundle, features, app) {
   for (let feature of features) {
@@ -38,7 +38,7 @@ const Actions = {
       Object.assign(app.actions, actions);
     }
   },
-  finalize: function (app) {
+  finalize: function (_app) {
   }
 };
 
@@ -51,7 +51,7 @@ const Views = {
       Object.assign(app.views, views);
     }
   },
-  finalize: function (app) {
+  finalize: function (_app) {
   }
 };
 
@@ -67,7 +67,7 @@ const Reducers = {
       app.reducer = sequenceReducers(app.reducer, ...reducers);
     }
   },
-  finalize: function (app) {
+  finalize: function (_app) {
   }
 };
 
@@ -167,5 +167,5 @@ function sequenceReducers (...reducers) {
 }
 
 function composeReducers (fst, snd) {
-  return function (state, action) { return snd(fst(state, action), action) };
+  return function (state, action) { return snd(fst(state, action), action); };
 }

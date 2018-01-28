@@ -1,7 +1,7 @@
 
 import React from 'react';
 
-function Spinner (props) {
+function Spinner (_props) {
   return (
     <div className='text-center' style={{fontSize: '300%'}}>
       <i className="fa fa-spinner fa-spin"/>
@@ -9,4 +9,4 @@ function Spinner (props) {
   );
 }
 
-export default Spinner
+export default Spinner;

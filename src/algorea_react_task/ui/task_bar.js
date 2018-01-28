@@ -11,4 +11,4 @@ function TaskBar (props) {
   );
 }
 
-export default TaskBar
+export default TaskBar;

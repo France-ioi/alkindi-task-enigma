@@ -33,4 +33,4 @@ export default {
   views: {
     Workspace: connect(WorkspaceSelector)(Workspace),
   }
-}
+};

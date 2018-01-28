@@ -11,7 +11,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import {Provider} from 'react-redux';
 import queryString from 'query-string';
-import {createStore, applyMiddleware, compose} from 'redux';
+import {createStore, applyMiddleware} from 'redux';
 import {default as createSagaMiddleware} from 'redux-saga';
 import {call} from 'redux-saga/effects';
 
@@ -29,10 +29,7 @@ export default function (container, options, TaskBundle) {
     /* Build the store. */
     const safeReducer = function (state, action) {
         try {
-            console.log('Reducing', action);
-            state = reducer(state, action);
-            console.log('New state', state);
-            return state;
+            return reducer(state, action);
         } catch (ex) {
             console.log('action failed to reduce', action, ex);
             return {...state, errors: [ex]};

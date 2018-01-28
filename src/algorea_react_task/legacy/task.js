@@ -1,22 +1,18 @@
 
-import {buffers, eventChannel} from 'redux-saga'
+import {buffers, eventChannel} from 'redux-saga';
 
 export default function () {
-    return new Promise(function (resolve) {
-        const channel = eventChannel(function (emit) {
-            const task = makeTask(emit);
-            emit({task});
-            return function () {
-                for (let prop of Object.keys(taskApi)) {
-                    taskApi[prop] = function () {
-                        throw new Error('task channel is closed');
-                    };
-                }
-            };
-        }, buffers.expanding(4));
-        console.log('task channel', channel);
-        resolve(channel);
-    });
+    return eventChannel(function (emit) {
+        const task = makeTask(emit);
+        emit({task});
+        return function () {
+            for (let prop of Object.keys(task)) {
+                task[prop] = function () {
+                    throw new Error('task channel is closed');
+                };
+            }
+        };
+    }, buffers.expanding(4));
 }
 
 function makeTask (emit) {
@@ -55,7 +51,7 @@ function makeTask (emit) {
             emit({type: 'load', payload: {views, success, error}});
         },
         gradeAnswer: function (answer, answerToken, success, error) {
-            emit({type: gradeAnswer, payload: {answer, answerToken, success, error}});
+            emit({type: 'gradeAnswer', payload: {answer, answerToken, success, error}});
         },
     };
 }

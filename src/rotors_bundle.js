@@ -111,7 +111,7 @@ class RotorCell extends React.PureComponent {
       <div style={{marginTop: '2px', textAlign: 'center', cursor: 'pointer'}} onClick={this.lockClicked}>
         <i className={classnames(['fa', isLocked ? 'fa-lock' : 'fa-unlock-alt'])} />
       </div>
-    )
+    );
     if (editableRow === 'top') {
       return (
         <div style={{float: 'left', width: '20px'}}>
@@ -132,16 +132,16 @@ class RotorCell extends React.PureComponent {
       this._input.focus();
     }
   }
-  startEditing = (event) => {
+  startEditing = () => {
     if (!this.props.isLocked && !this.props.isEditing) {
       this.props.onEditingStarted(this.props.rank);
     }
   };
-  cellChanged = (event) => {
+  cellChanged = () => {
     const value = this._input.value.substr(-1); /* /!\ IE compatibility */
     this.props.onChangeChar(this.props.rank, value);
   };
-  lockClicked = (event) => {
+  lockClicked = () => {
     this.props.onChangeLocked(this.props.rank, !this.props.isLocked);
   };
   refInput = (element) => {
@@ -163,4 +163,4 @@ export default {
   views: {
     Rotor: connect(RotorSelector)(RotorView)
   }
-}
+};

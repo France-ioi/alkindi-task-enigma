@@ -41,14 +41,14 @@ export function updateGridGeometry (grid) {
 
 export function updateGridVisibleRows (grid, options) {
   options = options || {};
-  const {nbCells, cellHeight, pageColumns, pageRows, scrollTop, selectedRows} = grid;
+  const {nbCells, cellHeight, pageColumns, pageRows, cells, scrollTop, selectedRows} = grid;
   if (typeof scrollTop !== 'number') {
     return grid;
   }
   const firstRow = Math.floor(scrollTop / cellHeight);
   const lastRow = Math.min(firstRow + pageRows - 1, Math.ceil(nbCells / pageColumns) - 1);
   const rows = [];
-  const getCell = options.getCell || (grid.cells ? index => ({cell: grid.cells[index]}) : index => null);
+  const getCell = options.getCell || (cells ? (index => ({cell: cells[index]})) : (_index => null));
   for (let rowIndex = firstRow; rowIndex <= lastRow; rowIndex += 1) {
     const rowStartPos = rowIndex * pageColumns;
     const rowCells = [];
@@ -70,7 +70,7 @@ export function updateGridVisibleColumns (grid, options) {
   const firstRow = Math.floor(scrollTop / cellHeight);
   const lastRow = firstRow + pageRows - 1;
   const columns = [];
-  const getCell = options.getCell || (grid.cells ? index => ({cell: grid.cells[index]}) : index => null);
+  const getCell = options.getCell || (cells ? (index => ({cell: cells[index]})) : (_index => null));
   for (let colIndex = 0; colIndex < pageColumns; colIndex += 1) {
     const colCells = [];
     for (let rowIndex = firstRow; rowIndex <= lastRow; rowIndex += 1) {

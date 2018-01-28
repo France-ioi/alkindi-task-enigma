@@ -38,4 +38,4 @@ export default {
         const actions = yield select(({actions}) => actions);
         yield takeEvery(actions.requestHint, requestHintSaga);
     }
-}
+};
