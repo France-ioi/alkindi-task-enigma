@@ -15,6 +15,7 @@ import WorkspaceBundle from './workspace_bundle';
 
 const TaskBundle = {
     actionReducers: {
+        appInit: appInitReducer,
         taskInit: taskInitReducer /* possibly move to algorea-react-task */,
         taskRefresh: taskRefreshReducer /* possibly move to algorea-react-task */,
     },
@@ -35,6 +36,24 @@ if (process.env.NODE_ENV === 'development') {
         console.log('ACTION', action.type, action);
         return state;
     };
+}
+
+function appInitReducer (state, _action) {
+    const taskMetaData = {
+       "id": "http://concours-alkindi.fr/tasks/2018/enigma",
+       "language": "fr",
+       "version": "fr.01",
+       "authors": "Sébastien Carlier",
+       "translators": [],
+       "license": "",
+       "taskPathPrefix": "",
+       "modulesPathPrefix": "",
+       "browserSupport": [],
+       "fullFeedback": true,
+       "acceptedAnswers": [],
+       "usesRandomSeed": true
+    };
+    return {...state, taskMetaData};
 }
 
 function taskInitReducer (state, _action) {
