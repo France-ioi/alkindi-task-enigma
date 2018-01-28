@@ -59,8 +59,12 @@ function selectedTextSelectionChangedReducer (state, {payload: {selected, index}
   if (mode === 'rows') {
     let {selectedRows} = selectedText;
     if (typeof index === 'number') {
-      selected = !sortedArrayHasElement(selectedRows, index);
-      selectedRows = update(selectedRows, changeSelection(selectedRows, index, selected));
+      if (selected === 'only') {
+        selectedRows = [index];
+      } else {
+        selected = !sortedArrayHasElement(selectedRows, index);
+        selectedRows = update(selectedRows, changeSelection(selectedRows, index, selected));
+      }
     } else if (selected) {
       const rows = Math.ceil(taskData.cipherText.length / selectedText.pageColumns);
       selectedRows = range(0, rows);
@@ -71,8 +75,12 @@ function selectedTextSelectionChangedReducer (state, {payload: {selected, index}
   } else if (mode === 'columns') {
     let {selectedColumns} = selectedText;
     if (typeof index === 'number') {
-      selected = !sortedArrayHasElement(selectedColumns, index);
-      selectedColumns = update(selectedColumns, changeSelection(selectedColumns, index, selected));
+      if (selected === 'only') {
+        selectedColumns = [index];
+      } else {
+        selected = !sortedArrayHasElement(selectedColumns, index);
+        selectedColumns = update(selectedColumns, changeSelection(selectedColumns, index, selected));
+      }
     } else if (selected) {
       selectedColumns = range(0, selectedText.pageColumns);
     } else {
@@ -140,7 +148,7 @@ class SelectedTextView extends React.PureComponent {
           <div ref={this.refTextBox} onScroll={this.onScroll} style={{position: 'relative', width: width && `${width}px`, height: height && `${height}px`, overflowY: 'scroll'}}>
             {visible && (visible.rows||[]).map(({index, columns, selected}) =>
               <div key={index} style={{position: 'absolute', top: `${index * cellHeight}px`, backgroundColor: selected ? '#ccc' : '#fff', width: `${cellWidth * pageColumns}px`, height: `${cellHeight}px`}}
-                onClick={this.toggleRow} data-index={index}>
+                onClick={this.rowClicked} data-index={index}>
                 {columns.map(({index, cell}) =>
                   <span key={index} style={{position: 'absolute', left: `${index * cellWidth}px`, width: `${cellWidth}px`, height: `${cellHeight}px`}}>
                     {cell || ' '}
@@ -148,7 +156,7 @@ class SelectedTextView extends React.PureComponent {
               </div>)}
             {visible && (visible.columns||[]).map(({index, rows, selected}) =>
               <div key={index} style={{position: 'absolute', left: `${index * cellWidth}px`, backgroundColor: selected ? '#ccc' : '#fff', width: `${cellWidth}px`, height: `${bottom}px`}}
-                onClick={this.toggleColumn} data-index={index}>
+                onClick={this.columnClicked} data-index={index}>
                 {rows.map(({index, cell}) =>
                   <span key={index} style={{position: 'absolute', top: `${index * cellHeight}px`, width: `${cellWidth}px`, height: `${cellHeight}px`}}>
                     {cell || ' '}
@@ -218,13 +226,13 @@ class SelectedTextView extends React.PureComponent {
   selectNone = () => {
     this.props.dispatch({type: this.props.selectedTextSelectionChanged, payload: {selected: false}});
   };
-  toggleRow = (event) => {
+  rowClicked = (event) => {
     const index = parseInt(event.currentTarget.dataset.index);
-    this.props.dispatch({type: this.props.selectedTextSelectionChanged, payload: {index}});
+    this.props.dispatch({type: this.props.selectedTextSelectionChanged, payload: {index, selected: event.shiftKey ? 'toggle' : 'only'}});
   };
-  toggleColumn = (event) => {
+  columnClicked = (event) => {
     const index = parseInt(event.currentTarget.dataset.index);
-    this.props.dispatch({type: this.props.selectedTextSelectionChanged, payload: {index}});
+    this.props.dispatch({type: this.props.selectedTextSelectionChanged, payload: {index, selected: event.shiftKey ? 'toggle' : 'only'}});
   };
 
 }
