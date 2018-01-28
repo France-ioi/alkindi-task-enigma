@@ -124,7 +124,30 @@
     border-left-color: transparent;
     width: 24px;
 }
-
+.inputError {
+    border-color: red;
+    box-shadow: 0 0 3px red inset;
+}
+.selectText {
+    position: absolute;
+}
+.selectTextInner {
+    background-color: #fff;
+    border: 1px solid #acacac;
+}
+.selectText.selected .selectTextInner {
+    background-color: #ccc;
+}
+.selectTextInner > span {
+    position: absolute;
+    text-align: center;
+}
+.selectText-rows .selectTextInner > span {
+    top: -1px;
+}
+.selectText-columns .selectTextInner > span {
+    left: -1px;
+}
 .taskHeader {
 
 }

@@ -1,15 +1,17 @@
 
 import React from 'react';
 import {connect} from 'react-redux';
+import {Button} from 'react-bootstrap';
 import update from 'immutability-helper';
 import {range} from 'range';
+import classnames from 'classnames';
 
 import {changeSelection, sortedArrayHasElement, updateGridVisibleArea} from './utils';
 
 function appInitReducer (state, _action) {
   return {...state, selectedText: {
-    cellWidth: 15,
-    cellHeight: 18,
+    cellWidth: 17,
+    cellHeight: 20,
     pageColumns: 30,
     scrollTop: 0,
     mode: 'rows',
@@ -130,37 +132,51 @@ class SelectedTextView extends React.PureComponent {
 
   render () {
     const {width, height, visible, cellWidth, cellHeight, pageColumns, bottom, mode} = this.props;
+
     return (
       <div>
-        <p>
-          <span onClick={this.setRowMode} style={{fontWeight: mode === 'rows' ? 'bold' : 'normal'}}>{"lignes"}</span>
-          <span onClick={this.setColMode} style={{fontWeight: mode === 'columns' ? 'bold' : 'normal'}}>{"colonnes"}</span>
-          <span onClick={this.scrollPageUp}>{" << "}</span>
-          <span onClick={this.scrollRowUp}>{" < "}</span>
-          <span onClick={this.scrollRowDown}>{" > "}</span>
-          <span onClick={this.scrollPageDown}>{" >> "}</span>
-          <input type='text' value={this.state.pageColumns === null ? pageColumns : this.state.pageColumns} onChange={this.pageColumnsChange}
-            style={{color: this.state.pageColumns === null ? 'black' : 'red'}}/>
-          <span onClick={this.selectAll}>{" all "}</span>
-          <span onClick={this.selectNone}>{" none "}</span>
-        </p>
+        <div className='form-inline' style={{marginBottom: '7px'}}>
+          <div className='btn-group' style={{marginRight: '7px'}}>
+            <Button onClick={this.setRowMode} active={mode === 'rows'} bsSize='sm'>{"lignes"}</Button>
+            <Button onClick={this.setColMode} active={mode === 'columns'} bsSize='sm'>{"colonnes"}</Button>
+          </div>
+          <div className='btn-group' style={{marginRight: '7px'}}>
+            <Button onClick={this.scrollPageUp} bsSize='sm'><i className='fa fa-angle-double-up'></i></Button>
+            <Button onClick={this.scrollRowUp} bsSize='sm'><i className='fa fa-angle-up'></i></Button>
+            <Button onClick={this.scrollRowDown} bsSize='sm'><i className='fa fa-angle-down'></i></Button>
+            <Button onClick={this.scrollPageDown} bsSize='sm'><i className='fa fa-angle-double-down'></i></Button>
+          </div>
+          <div className='form-group'>
+            <label style={{fontWeight: 'normal', marginRight: '3px'}}>{'Colonnes :'}</label>
+            <input type='number' value={this.state.pageColumns === null ? pageColumns : this.state.pageColumns} onChange={this.pageColumnsChange}
+            style={{marginRight: '7px', width:'70px', color: this.state.pageColumns === null ? 'black' : 'red'}} className={classnames('form-control', 'input-sm', this.state.pageColumns === null ? '' : 'inputError')}/>
+          </div>
+          <div className='btn-group'>
+            <Button onClick={this.selectAll} bsSize='sm'>{" all "}</Button>
+            <Button onClick={this.selectNone} bsSize='sm'>{" none "}</Button>
+          </div>
+        </div>
         <div>
           <div ref={this.refTextBox} onScroll={this.onScroll} style={{position: 'relative', width: width && `${width}px`, height: height && `${height}px`, overflowY: 'scroll'}}>
             {visible && (visible.rows||[]).map(({index, columns, selected}) =>
-              <div key={index} style={{position: 'absolute', top: `${index * cellHeight}px`, backgroundColor: selected ? '#ccc' : '#fff', width: `${cellWidth * pageColumns}px`, height: `${cellHeight}px`}}
+              <div key={index} className={classnames('selectText', 'selectText-rows', selected ? 'selected' : '')} style={{top: `${index * cellHeight}px`, width: `${cellWidth * pageColumns}px`, height: `${cellHeight}px`}}
                 onClick={this.rowClicked} data-index={index}>
-                {columns.map(({index, cell}) =>
-                  <span key={index} style={{position: 'absolute', left: `${index * cellWidth}px`, width: `${cellWidth}px`, height: `${cellHeight}px`}}>
-                    {cell || ' '}
-                  </span>)}
+                <div className='selectTextInner' style={{width: `${cellWidth * pageColumns}px`, height: `${cellHeight - 2}px`}}>
+                  {columns.map(({index, cell}) =>
+                    <span key={index} style={{left: `${index * cellWidth}px`, width: `${cellWidth}px`, height: `${cellHeight}px`}}>
+                      {cell || ' '}
+                    </span>)}
+                </div>
               </div>)}
             {visible && (visible.columns||[]).map(({index, rows, selected}) =>
-              <div key={index} style={{position: 'absolute', left: `${index * cellWidth}px`, backgroundColor: selected ? '#ccc' : '#fff', width: `${cellWidth}px`, height: `${bottom}px`}}
+              <div key={index} className={classnames('selectText', 'selectText-columns', selected ? 'selected' : '')} style={{left: `${index * cellWidth}px`, width: `${cellWidth}px`, height: `${bottom}px`}}
                 onClick={this.columnClicked} data-index={index}>
-                {rows.map(({index, cell}) =>
-                  <span key={index} style={{position: 'absolute', top: `${index * cellHeight}px`, width: `${cellWidth}px`, height: `${cellHeight}px`}}>
-                    {cell || ' '}
-                  </span>)}
+                <div className='selectTextInner' style={{width: `${cellWidth - 2}px`, height: `${bottom}px`}}>
+                  {rows.map(({index, cell}) =>
+                    <span key={index} style={{top: `${index * cellHeight}px`, width: `${cellWidth}px`, height: `${cellHeight}px`}}>
+                      {cell || ' '}
+                    </span>)}
+                </div>
               </div>)}
             <div style={{position: 'absolute', top: `${bottom}px`, width: '1px', height: '1px'}}/>
           </div>
