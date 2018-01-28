@@ -3,6 +3,8 @@ import React from 'react';
 import {connect} from 'react-redux';
 import {Button} from 'react-bootstrap';
 import update from 'immutability-helper';
+import {delay} from 'redux-saga';
+import {select, takeLatest, put} from 'redux-saga/effects';
 
 import {getRotorShift} from './utils';
 
@@ -30,6 +32,10 @@ function schedulingStatusChangedReducer (state, {payload: {status}}) {
     changes.position = {$set: scheduling.startPosition};
   } else if (status === 'end') {
     changes.position = {$set: scheduling.endPosition};
+  } else if (status === 'play') {
+    if (scheduling.position === scheduling.endPosition) {
+      changes.position = {$set: scheduling.startPosition};
+    }
   }
   return update(state, {scheduling: changes});
 }
@@ -59,6 +65,18 @@ function schedulingJumpReducer (state, {payload: {position}}) {
   }});
 }
 
+function schedulingTickReducer (state, action) {
+  const {scheduling: {position, endPosition}} = state;
+  if (position === endPosition) {
+    return update(state, {scheduling: {
+      status: {$set: 'end'}
+    }});
+  }
+  return update(state, {scheduling: {
+    position: {$set: position + 1}
+  }});
+}
+
 function schedulingLateReducer (state) {
   const {rotors, scheduling} = state;
   if (!scheduling) {
@@ -70,9 +88,21 @@ function schedulingLateReducer (state) {
 }
 
 function* schedulingSaga () {
-  /* TODO: write scheduling saga
-     - When status changes to play, fork a task that puts schedulingStopForward every (1/speed) seconds.
-     - When status changes away from play, kill the task. */
+  const {schedulingTick} = yield select(({actions}) => actions);
+  const statusChangingActions = yield select(({actions}) => ['schedulingStatusChanged', 'schedulingStepBackward', 'schedulingStepForward', 'schedulingJump'].map(name => actions[name]));
+  yield takeLatest(statusChangingActions, function* (action) {
+    let status = yield select(({scheduling: {status}}) => status);
+    if (status === 'play') {
+      while (true) {
+        yield put({type: schedulingTick});
+        status = yield select(({scheduling: {status}}) => status);
+        if ('play' !== status) {
+          return; /* reached end of text */
+        }
+        yield delay(1000);
+      }
+    }
+  });
 }
 
 function SchedulingControlsSelector (state) {
@@ -120,6 +150,7 @@ export default {
     schedulingStepBackward: 'Scheduling.StepBackward',
     schedulingStepForward: 'Scheduling.StepForward',
     schedulingJump: 'Scheduling.Jump',
+    schedulingTick: 'Scheduling.Tick',
   },
   actionReducers: {
     appInit: appInitReducer,
@@ -128,6 +159,7 @@ export default {
     schedulingStepBackward: schedulingStepBackwardReducer,
     schedulingStepForward: schedulingStepForwardReducer,
     schedulingJump: schedulingJumpReducer,
+    schedulingTick: schedulingTickReducer,
   },
   lateReducer: schedulingLateReducer,
   saga: schedulingSaga,
