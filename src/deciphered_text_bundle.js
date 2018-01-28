@@ -116,7 +116,8 @@ class TextCell extends React.PureComponent {
       height: `42px`,
       border: 'solid #777',
       borderWidth: '1px 0',
-      backgroundColor: current ? '#aaa' : (locked ? '#ccc' : '#fff')
+      backgroundColor: current ? '#aaa' : (locked ? '#ccc' : '#fff'),
+      cursor: 'pointer'
     };
     return (
       <div style={cellStyle} onClick={this._jump}>

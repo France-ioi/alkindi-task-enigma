@@ -134,7 +134,7 @@ class ReferenceFrequencyBox extends React.PureComponent {
   render () {
     const {cell, scale} = this.props;
     return (
-      <div style={{position: 'absolute', top: '56px', cursor: 'move'}}>
+      <div style={{position: 'absolute', top: '56px'}}>
         <div style={{width: '17px', height: '20px', border: '1px solid black', marginBottom: '2px', textAlign: 'center'}}>
           {cell.symbol}
         </div>

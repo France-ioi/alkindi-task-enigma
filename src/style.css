@@ -130,6 +130,7 @@
 }
 .selectText {
     position: absolute;
+    cursor: pointer;
 }
 .selectTextInner {
     background-color: #fff;
