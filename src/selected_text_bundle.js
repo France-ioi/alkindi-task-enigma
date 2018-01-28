@@ -152,8 +152,8 @@ class SelectedTextView extends React.PureComponent {
             style={{marginRight: '7px', width:'70px', color: this.state.pageColumns === null ? 'black' : 'red'}} className={classnames('form-control', 'input-sm', this.state.pageColumns === null ? '' : 'inputError')}/>
           </div>
           <div className='btn-group'>
-            <Button onClick={this.selectAll} bsSize='sm'>{" all "}</Button>
-            <Button onClick={this.selectNone} bsSize='sm'>{" none "}</Button>
+            <Button onClick={this.selectAll} bsSize='sm'>{" Tout sélectionner "}</Button>
+            <Button onClick={this.selectNone} bsSize='sm'>{" Vider la sélection "}</Button>
           </div>
         </div>
         <div>
