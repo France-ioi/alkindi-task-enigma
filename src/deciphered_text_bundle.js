@@ -7,26 +7,9 @@
 
 
 import React from 'react';
+import {connect} from 'react-redux';
 
 import {updateGridGeometry, updateGridVisibleRows, applyRotors} from './utils';
-
-export default function (bundle) {
-  bundle.use('appInit', 'taskInit', 'taskReset', 'schedulingJump');
-  bundle.addReducer('appInit', appInitReducer);
-  bundle.addReducer('taskInit', taskInitReducer);
-
-  bundle.defineAction('decipheredTextResized', 'DecipheredText.Resized'
-    /* {width: number, height: number} */);
-  bundle.addReducer('decipheredTextResized', decipheredTextResizedReducer);
-
-  bundle.defineAction('decipheredTextScrolled', 'DecipheredText.Scrolled'
-    /* {scrollTop: number} */);
-  bundle.addReducer('decipheredTextScrolled', decipheredTextScrolledReducer);
-
-  bundle.addLateReducer(decipheredTextLateReducer);
-
-  bundle.defineView('DecipheredText', DecipheredTextViewSelector, DecipheredTextView);
-}
 
 function appInitReducer (state, _action) {
   return {...state, decipheredText: {
@@ -78,8 +61,8 @@ function decipheredTextLateReducer (state, action) {
 }
 
 function DecipheredTextViewSelector (state) {
-  const {scope, decipheredText} = state;
-  const {decipheredTextResized, decipheredTextScrolled, schedulingJump} = scope;
+  const {actions, decipheredText} = state;
+  const {decipheredTextResized, decipheredTextScrolled, schedulingJump} = actions;
   const {width, height, cellWidth, cellHeight, bottom, pageRows, pageColumns, visible} = decipheredText;
   return {
     decipheredTextResized, decipheredTextScrolled, schedulingJump,
@@ -145,4 +128,21 @@ class TextCell extends React.PureComponent {
   _jump = (_event) => {
     this.props.onJump(this.props.position);
   };
+}
+
+export default {
+  actions: {
+    decipheredTextResized: 'DecipheredText.Resized' /* {width: number, height: number} */,
+    decipheredTextScrolled: 'DecipheredText.Scrolled' /* {scrollTop: number} */,
+  },
+  actionReducers: {
+    appInit: appInitReducer,
+    taskInit: taskInitReducer,
+    decipheredTextResized: decipheredTextResizedReducer,
+    decipheredTextScrolled: decipheredTextScrolledReducer,
+  },
+  lateReducer: decipheredTextLateReducer,
+  views: {
+    DecipheredText: connect(DecipheredTextViewSelector)(DecipheredTextView),
+  }
 }

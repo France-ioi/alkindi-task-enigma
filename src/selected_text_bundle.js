@@ -1,41 +1,10 @@
 
 import React from 'react';
+import {connect} from 'react-redux';
 import update from 'immutability-helper';
 import {range} from 'range';
 
 import {changeSelection, sortedArrayHasElement, updateGridVisibleArea} from './utils';
-
-export default function (bundle) {
-
-  bundle.use('appInit', 'taskInit', 'taskReset');
-  bundle.addReducer('appInit', appInitReducer);
-  bundle.addReducer('taskInit', taskInitReducer);
-
-  bundle.defineAction('selectedTextResized', 'SelectedText.Resized'
-    /* {width: number, height: number} */);
-  bundle.addReducer('selectedTextResized', selectedTextResizedReducer);
-
-  bundle.defineAction('selectedTextScrolled', 'SelectedText.Scrolled'
-    /* {top: number} */);
-  bundle.addReducer('selectedTextScrolled', selectedTextScrolledReducer);
-
-  bundle.defineAction('selectedTextModeChanged', 'SelectedText.Mode.Changed'
-    /* {mode: 'rows' or 'columns'} */);
-  bundle.addReducer('selectedTextModeChanged', selectedTextModeChangedReducer);
-
-  bundle.defineAction('selectedTextPageColumnsChanged', 'SelectedText.PageColumns.Changed'
-    /* {columns: number} */);
-  bundle.addReducer('selectedTextPageColumnsChanged', selectedTextPageColumnsChangedReducer);
-
-  bundle.defineAction('selectedTextSelectionChanged', 'SelectedText.Selection.Changed'
-    /* {selected: bool} union ({} or {index: number}) */);
-  bundle.addReducer('selectedTextSelectionChanged', selectedTextSelectionChangedReducer);
-
-  bundle.addLateReducer(selectedTextLateReducer);
-
-  bundle.defineView('SelectedText', SelectedTextViewSelector, SelectedTextView);
-
-}
 
 function appInitReducer (state, _action) {
   return {...state, selectedText: {
@@ -141,8 +110,8 @@ function updateGeometry (grid) {
 }
 
 function SelectedTextViewSelector (state) {
-  const {scope, selectedText} = state;
-  const {selectedTextResized, selectedTextScrolled, selectedTextModeChanged, selectedTextPageColumnsChanged, selectedTextSelectionChanged} = scope;
+  const {actions, selectedText} = state;
+  const {selectedTextResized, selectedTextScrolled, selectedTextModeChanged, selectedTextPageColumnsChanged, selectedTextSelectionChanged} = actions;
   const {width, height, cellWidth, cellHeight, bottom, pageRows, pageColumns, visible, mode, scrollTop} = selectedText;
   return {
     selectedTextResized, selectedTextScrolled, selectedTextModeChanged, selectedTextPageColumnsChanged, selectedTextSelectionChanged,
@@ -259,4 +228,27 @@ class SelectedTextView extends React.PureComponent {
     this.props.dispatch({type: this.props.selectedTextSelectionChanged, payload: {index}});
   };
 
+}
+
+export default {
+  actions: {
+    selectedTextResized: 'SelectedText.Resized' /* {width: number, height: number} */,
+    selectedTextScrolled: 'SelectedText.Scrolled' /* {top: number} */,
+    selectedTextModeChanged: 'SelectedText.Mode.Changed' /* {mode: 'rows' or 'columns'} */,
+    selectedTextPageColumnsChanged: 'SelectedText.PageColumns.Changed' /* {columns: number} */,
+    selectedTextSelectionChanged: 'SelectedText.Selection.Changed' /* {selected: bool} union ({} or {index: number}) */,
+  },
+  actionReducers: {
+    appInit: appInitReducer,
+    taskInit: taskInitReducer,
+    selectedTextResized: selectedTextResizedReducer,
+    selectedTextScrolled: selectedTextScrolledReducer,
+    selectedTextModeChanged: selectedTextModeChangedReducer,
+    selectedTextPageColumnsChanged: selectedTextPageColumnsChangedReducer,
+    selectedTextSelectionChanged: selectedTextSelectionChangedReducer,
+  },
+  lateReducer: selectedTextLateReducer,
+  views: {
+    SelectedText: connect(SelectedTextViewSelector)(SelectedTextView)
+  },
 }

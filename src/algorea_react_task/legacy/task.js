@@ -1,43 +1,61 @@
 
-export default class Task {
-    constructor (store, scope) {
-        this._store = store;
-        this._scope = scope;
-    }
-    showViews (views, success, error) {
-        this._store.dispatch({type: this._scope.taskShowViewsEvent, payload: {views, success, error}});
-    }
-    getViews (success, error) {
-        this._store.dispatch({type: this._scope.taskGetViewsEvent, payload: {success, error}});
-    }
-    updateToken (token, success, error) {
-        this._store.dispatch({type: this._scope.taskUpdateTokenEvent, payload: {token, success, error}});
-    }
-    getHeight (success, error) {
-        this._store.dispatch({type: this._scope.taskGetHeightEvent, payload: {success, error}});
-    }
-    unload (success, error) {
-        this._store.dispatch({type: this._scope.taskUnloadEvent, payload: {success, error}});
-    }
-    getState (success, error) {
-        this._store.dispatch({type: this._scope.taskGetStateEvent, payload: {success, error}});
-    }
-    getMetaData (success, error) {
-        this._store.dispatch({type: this._scope.taskGetMetaDataEvent, payload: {success, error}});
-    }
-    reloadAnswer (answer, success, error) {
-        this._store.dispatch({type: this._scope.taskReloadAnswerEvent, payload: {answer, success, error}});
-    }
-    reloadState (state, success, error) {
-        this._store.dispatch({type: this._scope.taskReloadStateEvent, payload: {state, success, error}});
-    }
-    getAnswer (success, error) {
-        this._store.dispatch({type: this._scope.taskGetAnswerEvent, payload: {success, error}});
-    }
-    load (views, success, error) {
-        this._store.dispatch({type: this._scope.taskLoadEvent, payload: {views, success, error}});
-    }
-    gradeAnswer (answer, answerToken, success, error) {
-        this._store.dispatch({type: this._scope.taskGradeAnswerEvent, payload: {answer, answerToken, success, error}});
-    }
+import {buffers, eventChannel} from 'redux-saga'
+
+export default function () {
+    return new Promise(function (resolve) {
+        const channel = eventChannel(function (emit) {
+            const task = makeTask(emit);
+            emit({task});
+            return function () {
+                for (let prop of Object.keys(taskApi)) {
+                    taskApi[prop] = function () {
+                        throw new Error('task channel is closed');
+                    };
+                }
+            };
+        }, buffers.expanding(4));
+        console.log('task channel', channel);
+        resolve(channel);
+    });
+}
+
+function makeTask (emit) {
+    return {
+        showViews: function (views, success, error) {
+            emit({type: 'showViews', payload: {views, success, error}});
+        },
+        getViews: function (success, error) {
+            emit({type: 'getViews', payload: {success, error}});
+        },
+        updateToken: function (token, success, error) {
+            emit({type: 'updateToken', payload: {token, success, error}});
+        },
+        getHeight: function (success, error) {
+            emit({type: 'getHeight', payload: {success, error}});
+        },
+        unload: function (success, error) {
+            emit({type: 'unload', payload: {success, error}});
+        },
+        getState: function (success, error) {
+            emit({type: 'getState', payload: {success, error}});
+        },
+        getMetaData: function (success, error) {
+            emit({type: 'getMetaData', payload: {success, error}});
+        },
+        reloadAnswer: function (answer, success, error) {
+            emit({type: 'reloadAnswer', payload: {answer, success, error}});
+        },
+        reloadState: function (state, success, error) {
+            emit({type: 'reloadState', payload: {state, success, error}});
+        },
+        getAnswer: function (success, error) {
+            emit({type: 'getAnswer', payload: {success, error}});
+        },
+        load: function (views, success, error) {
+            emit({type: 'load', payload: {views, success, error}});
+        },
+        gradeAnswer: function (answer, answerToken, success, error) {
+            emit({type: gradeAnswer, payload: {answer, answerToken, success, error}});
+        },
+    };
 }

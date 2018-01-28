@@ -13,41 +13,38 @@ import RotorsBundle from './rotors_bundle';
 import DecipheredTextBundle from './deciphered_text_bundle';
 import WorkspaceBundle from './workspace_bundle';
 
-export function run (container, options) {
-    return algoreaReactTask(container, options, TaskBundle);
-}
+const TaskBundle = {
+    actionReducers: {
+        taskInit: taskInitReducer /* possibly move to algorea-react-task */,
+        taskRefresh: taskRefreshReducer /* possibly move to algorea-react-task */,
+    },
+    includes: [
+        CipheredTextBundle,
+        SelectedTextBundle,
+        FrequencyAnalysisBundle,
+        SchedulingBundle,
+        RotorsBundle,
+        DecipheredTextBundle,
+        WorkspaceBundle,
+    ],
+};
 
-function TaskBundle (bundle) {
-
-    bundle.defineAction('taskInit', 'taskInit');
-    bundle.addReducer('taskInit', taskInitReducer);
-
-    bundle.defineAction('taskRefresh', 'taskRefresh');
-    bundle.addReducer('taskRefresh', taskRefreshReducer);
-
-    bundle.include(CipheredTextBundle);
-    bundle.include(SelectedTextBundle);
-    bundle.include(FrequencyAnalysisBundle);
-    bundle.include(SchedulingBundle);
-    bundle.include(RotorsBundle);
-    bundle.include(DecipheredTextBundle);
-    bundle.include(WorkspaceBundle);
-
-    if (process.env.NODE_ENV === 'development') {
-        /* eslint-disable no-console */
-        bundle.addEarlyReducer(function (state, action) {
-            console.log('ACTION', action.type, action);
-            return state;
-        });
-    }
-
+if (process.env.NODE_ENV === 'development') {
+    /* eslint-disable no-console */
+    TaskBundle.earlyReducer = function (state, action) {
+        console.log('ACTION', action.type, action);
+        return state;
+    };
 }
 
 function taskInitReducer (state, _action) {
-    /* TODO: initialize from state.task */
     return {...state, taskReady: true};
 }
 
 function taskRefreshReducer (state, _action) {
     return state; /* XXX figure out what needs to happen here */
+}
+
+export function run (container, options) {
+    return algoreaReactTask(container, options, TaskBundle);
 }

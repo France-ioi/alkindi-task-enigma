@@ -1,51 +1,77 @@
 import React from 'react';
-import {call, takeEvery, select, put} from 'redux-saga/effects';
+import {connect} from 'react-redux';
+import {call, takeEvery, select, take, put} from 'redux-saga/effects';
 
 import TaskBar from './ui/task_bar';
 import Spinner from './ui/spinner';
+import makeTaskChannel from './legacy/task';
+import makeServerApi from './server_api';
+import makePlatformAdapter from './legacy/platform_adapter';
+import PlatformBundle from './platform_bundle';
+import HintsBundle from './hints_bundle';
 
-export default function (bundle, deps) {
+function appInitReducer (state, {payload: {taskToken, options}}) {
+    return {...state, taskToken, options};
+}
 
-    bundle.use('Workspace');
+function appInitDoneReducer (state, {payload: {platformApi, taskApi, serverApi}}) {
+    return {...state, platformApi, taskApi, serverApi};
+}
 
-    bundle.defineAction('appInit', 'App.Init');
-    bundle.addReducer('appInit', function (state, {payload: {scope, platformApi, taskApi, taskToken, serverApi, options}}) {
-        return {...state, scope, platformApi, taskApi, serverApi, taskToken, options};
-    });
+function appInitFailedReducer (state, {payload: {message}}) {
+    return {...state, fatalError: message};
+}
 
-    bundle.defineAction('appInitFailed', 'App.Init.Failed');
-    bundle.addReducer('appInitFailed', function (state, {payload: {message}}) {
-        return {...state, fatalError: message};
-    });
+function* appSaga () {
+    const actions = yield select(({actions}) => actions);
+    yield takeEvery(actions.appInit, appInitSaga);
+    yield takeEvery(actions.platformValidate, platformValidateSaga);
+}
 
-    bundle.defineAction('platformValidate', 'Platform.Validate');
+const taskActions = { /* map task method names to action types */
+    showViews: 'taskShowViewsEvent',
+    getViews: 'taskGetViewsEvent',
+    updateToken: 'taskUpdateTokenEvent',
+    getHeight: 'taskGetHeightEvent',
+    unload: 'taskUnloadEvent',
+    getState: 'taskGetStateEvent',
+    getMetaData: 'taskGetMetaDataEvent',
+    reloadAnswer: 'taskReloadAnswerEvent',
+    reloadState: 'taskReloadStateEvent',
+    getAnswer: 'taskGetAnswerEvent',
+    load: 'taskLoadEvent',
+};
 
-    bundle.addSaga(function* () {
-        yield takeEvery(deps.appInit, appInitSaga);
-        yield takeEvery(deps.platformValidate, platformValidateSaga);
-    });
-
-    function* appInitSaga ({payload: {platformApi, taskApi}}) {
-        try {
-            yield call(platformApi.initWithTask, taskApi);
-        } catch (ex) {
-            yield put({type: deps.appInitFailed, payload: {message: ex.toString()}});
-        }
+function* appInitSaga ({payload: {taskToken, options, platform}}) {
+    const actions = yield select(({actions}) => actions);
+    let taskChannel, taskApi, platformApi, serverApi;
+    try {
+        console.log('taskToken', taskToken);
+        serverApi = makeServerApi(options.server_module, taskToken);
+        taskChannel = yield call(makeTaskChannel);
+        taskApi = (yield take(taskChannel)).task;
+        yield takeEvery(taskChannel, function* ({type, payload}) {
+            const action = {type: actions[taskActions[type]], payload};
+            yield put(action);
+        });
+        platformApi = makePlatformAdapter(platform);
+    } catch (ex) {
+        yield put({type: actions.appInitFailed, payload: {message: ex.toString()}});
+        return;
     }
+    yield put({type: actions.appInitDone, payload: {taskApi, platformApi, serverApi}});
+    yield call(platformApi.initWithTask, taskApi);
+}
 
-    function* platformValidateSaga ({payload: {mode}}) {
-        const {validate} = yield select(state => state.platformApi);
-        /* TODO: error handling, wrap in try/catch block */
-        yield call(validate, mode);
-    }
+function* platformValidateSaga ({payload: {mode}}) {
+    const {validate} = yield select(state => state.platformApi);
+    /* TODO: error handling, wrap in try/catch block */
+    yield call(validate, mode);
+}
 
-    function AppSelector (state) {
-        const {taskReady, fatalError} = state;
-        const {Workspace, platformValidate} = deps;
-        return {taskReady, fatalError, Workspace, platformValidate};
-    }
-    bundle.defineView('App', AppSelector, App);
-
+function AppSelector (state) {
+    const {taskReady, fatalError, views: {Workspace}, actions: {platformValidate}} = state;
+    return {taskReady, fatalError, Workspace, platformValidate};
 }
 
 class App extends React.PureComponent {
@@ -72,4 +98,26 @@ class App extends React.PureComponent {
     _validate = () => {
         this.props.dispatch({type: this.props.platformValidate, payload: {mode: 'done'}});
     };
+}
+
+export default {
+    actions: {
+        appInit: 'App.Init',
+        appInitDone: 'App.Init.Done',
+        appInitFailed: 'App.Init.Failed',
+        platformValidate: 'Platform.Validate',
+    },
+    actionReducers: {
+        appInit: appInitReducer,
+        appInitDone: appInitDoneReducer,
+        appInitFailed: appInitFailedReducer,
+    },
+    saga: appSaga,
+    views: {
+        App: connect(AppSelector)(App)
+    },
+    includes: [
+        PlatformBundle,
+        HintsBundle,
+    ]
 }

@@ -1,23 +1,8 @@
 
 import React from 'react';
+import {connect} from 'react-redux';
 
 import {updateGridGeometry, updateGridVisibleRows} from './utils';
-
-export default function (bundle) {
-  bundle.use('appInit', 'taskInit', 'taskReset');
-  bundle.addReducer('appInit', appInitReducer);
-  bundle.addReducer('taskInit', taskInitReducer);
-
-  bundle.defineAction('cipheredTextResized', 'CipheredText.Resized'
-    /* {width: number, height: number} */);
-  bundle.addReducer('cipheredTextResized', cipheredTextResizedReducer);
-
-  bundle.defineAction('cipheredTextScrolled', 'CipheredText.Scrolled'
-    /* {scrollTop: number} */);
-  bundle.addReducer('cipheredTextScrolled', cipheredTextScrolledReducer);
-
-  bundle.defineView('CipheredText', CipherTextViewSelector, CipherTextView);
-}
 
 function appInitReducer (state, _action) {
   return {...state, cipheredText: {
@@ -51,8 +36,8 @@ function cipheredTextScrolledReducer (state, {payload: {scrollTop}}) {
 }
 
 function CipherTextViewSelector (state) {
-  const {scope, cipheredText} = state;
-  const {cipheredTextResized, cipheredTextScrolled} = scope;
+  const {actions, cipheredText} = state;
+  const {cipheredTextResized, cipheredTextScrolled} = actions;
   const {width, height, cellWidth, cellHeight, bottom, pageRows, pageColumns, visible} = cipheredText;
   return {
     cipheredTextResized, cipheredTextScrolled,
@@ -92,4 +77,20 @@ class CipherTextView extends React.PureComponent {
     this.props.dispatch({type: this.props.cipheredTextScrolled, payload: {scrollTop}});
   };
 
+}
+
+export default {
+  actions: {
+    cipheredTextResized: 'CipheredText.Resized' /* {width: number, height: number} */,
+    cipheredTextScrolled: 'CipheredText.Scrolled' /* {scrollTop: number} */,
+  },
+  actionReducers: {
+    appInit: appInitReducer,
+    taskInit: taskInitReducer,
+    cipheredTextResized: cipheredTextResizedReducer,
+    cipheredTextScrolled: cipheredTextScrolledReducer,
+  },
+  views: {
+    CipheredText: connect(CipherTextViewSelector)(CipherTextView),
+  }
 }

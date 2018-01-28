@@ -1,20 +1,11 @@
 
 import React from 'react';
+import {connect} from 'react-redux';
 import classnames from 'classnames';
 import {range} from 'range';
 import update from 'immutability-helper';
 
 import {makeRotor, editRotorCell, lockRotorCell} from './utils';
-
-export default function (bundle) {
-  bundle.addReducer('appInit', appInitReducer);
-  bundle.addReducer('taskInit', taskInitReducer);
-  bundle.defineView('Rotor', RotorSelector, RotorView);
-  bundle.defineAction('rotorCellLockChanged', 'rotor.Cell.Lock.Changed');
-  bundle.addReducer('rotorCellLockChanged', rotorCellLockChangedReducer);
-  bundle.defineAction('rotorCellCharChanged', 'rotor.Cell.Char.Changed');
-  bundle.addReducer('rotorCellCharChanged', rotorCellCharChangedReducer);
-}
 
 function appInitReducer (state, _action) {
   return {...state, rotors: []};
@@ -41,7 +32,7 @@ function rotorCellLockChangedReducer (state, {payload: {rotorIndex, rank, isLock
 }
 
 function RotorSelector (state, {index}) {
-  const {scope: {rotorCellLockChanged, rotorCellCharChanged}, rotors, scheduling: {shifts}} = state;
+  const {actions: {rotorCellLockChanged, rotorCellCharChanged}, rotors, scheduling: {shifts}} = state;
   const {editableRow, cells} = rotors[index];
   const shift = shifts[index];
   return {rotorCellLockChanged, rotorCellCharChanged, editableRow, cells, shift};
@@ -156,4 +147,20 @@ class RotorCell extends React.PureComponent {
   refInput = (element) => {
     this._input = element;
   };
+}
+
+export default {
+  actions: {
+    rotorCellLockChanged: 'Rotor.Cell.Lock.Changed',
+    rotorCellCharChanged: 'Rotor.Cell.Char.Changed',
+  },
+  actionReducers: {
+    appInit: appInitReducer,
+    taskInit: taskInitReducer,
+    rotorCellLockChanged: rotorCellLockChangedReducer,
+    rotorCellCharChanged: rotorCellCharChangedReducer,
+  },
+  views: {
+    Rotor: connect(RotorSelector)(RotorView)
+  }
 }

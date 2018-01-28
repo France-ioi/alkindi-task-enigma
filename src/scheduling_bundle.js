@@ -1,25 +1,10 @@
 
 import React from 'react';
+import {connect} from 'react-redux';
 import {Button} from 'react-bootstrap';
 import update from 'immutability-helper';
 
 import {getRotorShift} from './utils';
-
-export default function (bundle) {
-  bundle.addReducer('appInit', appInitReducer);
-  bundle.addReducer('taskInit', taskInitReducer);
-  bundle.defineView('SchedulingControls', SchedulingControlsSelector, SchedulingControlsView);
-  bundle.defineAction('schedulingStatusChanged', 'scheduling.Status.Changed');
-  bundle.addReducer('schedulingStatusChanged', schedulingStatusChangedReducer);
-  bundle.defineAction('schedulingStepBackward', 'scheduling.StepBackward');
-  bundle.addReducer('schedulingStepBackward', schedulingStepBackwardReducer);
-  bundle.defineAction('schedulingStepForward', 'scheduling.StepForward');
-  bundle.addReducer('schedulingStepForward', schedulingStepForwardReducer);
-  bundle.defineAction('schedulingJump', 'scheduling.Jump');
-  bundle.addReducer('schedulingJump', schedulingJumpReducer);
-  bundle.addLateReducer(schedulingLateReducer);
-  bundle.addSaga(schedulingSaga);
-}
 
 function appInitReducer (state, _action) {
   return {...state, scheduling: {
@@ -91,8 +76,8 @@ function* schedulingSaga () {
 }
 
 function SchedulingControlsSelector (state) {
-  const {scope, taskData: {alphabet}, scheduling: {status, position}} = state;
-  const {schedulingStatusChanged, schedulingStepBackward, schedulingStepForward} = scope;
+  const {actions, taskData: {alphabet}, scheduling: {status, position}} = state;
+  const {schedulingStatusChanged, schedulingStepBackward, schedulingStepForward} = actions;
   const alphabetSize = alphabet.length;
   return {schedulingStatusChanged, schedulingStepBackward, schedulingStepForward, status, alphabetSize};
 }
@@ -127,4 +112,26 @@ class SchedulingControlsView extends React.PureComponent {
   onFastForwardClicked = (_event) => {
     this.props.dispatch({type: this.props.schedulingStatusChanged, payload: {status: 'end'}});
   };
+}
+
+export default {
+  actions: {
+    schedulingStatusChanged: 'Scheduling.Status.Changed',
+    schedulingStepBackward: 'Scheduling.StepBackward',
+    schedulingStepForward: 'Scheduling.StepForward',
+    schedulingJump: 'Scheduling.Jump',
+  },
+  actionReducers: {
+    appInit: appInitReducer,
+    taskInit: taskInitReducer,
+    schedulingStatusChanged: schedulingStatusChangedReducer,
+    schedulingStepBackward: schedulingStepBackwardReducer,
+    schedulingStepForward: schedulingStepForwardReducer,
+    schedulingJump: schedulingJumpReducer,
+  },
+  lateReducer: schedulingLateReducer,
+  saga: schedulingSaga,
+  views: {
+    SchedulingControls: connect(SchedulingControlsSelector)(SchedulingControlsView),
+  }
 }

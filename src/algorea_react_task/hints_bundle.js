@@ -1,37 +1,41 @@
+
 import {call, put, select, takeEvery} from 'redux-saga/effects';
 
-export default function (bundle, deps) {
+function hintRequestFulfilledReducer (state, {payload: {hints}}) {
+    return {...state, hints};
+}
 
-    bundle.use('taskRefresh');
+function hintRequestRejectedReducer (state, {payload: {error}}) {
+    return {...state, hintRequestError: error};
+}
 
-    bundle.defineAction('requestHint', 'Hint.Request');
-    bundle.defineAction('hintRequestFulfilled', 'Hint.Request.Fulfilled');
-    bundle.defineAction('hintRequestRejected', 'Hint.Request.Rejected');
-
-    bundle.addReducer('hintRequestFulfilled', function (state, {payload: {hints}}) {
-        return {...state, hints};
-    });
-
-    bundle.addReducer('hintRequestRejected', function (state, {payload: {error}}) {
-        return {...state, hintRequestError: error};
-    });
-
-    bundle.addSaga(function* () {
-        yield takeEvery(deps.requestHint, requestHintSaga);
-    });
-
-    function* requestHintSaga (action) {
-        const {askHint} = yield select(state => state.platformAdapter);
-        yield call(askHint, action.request);
-        /* Once askHint returns, the updated token can be obtained from the store. */
-        const {taskToken, serverApi} = yield select(state => state);
-        const hints = yield call(serverApi, 'tasks', 'taskHintData', {task: taskToken});
-        if (hints) {
-            yield put({type: deps.hintRequestFulfilled, payload: {hints}});
-            yield put({type: deps.taskRefresh});
-        } else {
-            yield put({type: deps.hintRequestRejected, payload: {error: 'server error'}});
-        }
+function* requestHintSaga (action) {
+    const actions = yield select(({actions}) => actions);
+    const {askHint} = yield select(state => state.platformAdapter);
+    yield call(askHint, action.request);
+    /* Once askHint returns, the updated token can be obtained from the store. */
+    const {taskToken, serverApi} = yield select(state => state);
+    const hints = yield call(serverApi, 'tasks', 'taskHintData', {task: taskToken});
+    if (hints) {
+        yield put({type: actions.hintRequestFulfilled, payload: {hints}});
+        yield put({type: actions.taskRefresh});
+    } else {
+        yield put({type: actions.hintRequestRejected, payload: {error: 'server error'}});
     }
+}
 
+export default {
+    actions: {
+        requestHint: 'Hint.Request',
+        hintRequestFulfilled: 'Hint.Request.Fulfilled',
+        hintRequestRejected: 'Hint.Request.Rejected',
+    },
+    actionReducers: {
+        hintRequestFulfilled: hintRequestFulfilledReducer,
+        hintRequestRejected: hintRequestRejectedReducer,
+    },
+    saga: function* hintsSaga () {
+        const actions = yield select(({actions}) => actions);
+        yield takeEvery(actions.requestHint, requestHintSaga);
+    }
 }

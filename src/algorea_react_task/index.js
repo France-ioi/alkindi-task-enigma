@@ -1,49 +1,66 @@
+/*
+Change method of use:
+- export a bundle that the task can include;
+- export a function(saga?) that (creates the API objects and ) dispatches the
+  appInit action;
+
+*/
+
 //import './shim'
 import React from 'react';
 import ReactDOM from 'react-dom';
 import {Provider} from 'react-redux';
-import link from 'epic-linker';
 import queryString from 'query-string';
+import {createStore, applyMiddleware, compose} from 'redux';
+import {default as createSagaMiddleware} from 'redux-saga';
+import {call} from 'redux-saga/effects';
 
+import link from './linker';
 import './ui/styles.css';
 
-import TaskApi from './legacy/task';
-import makeServerApi from './server_api';
-import makePlatformAdapter from './legacy/platform_adapter';
 import AppBundle from './app_bundle';
-import PlatformBundle from './platform_bundle';
-import HintsBundle from './hints_bundle';
 
 export default function (container, options, TaskBundle) {
-    const app = linkApp(TaskBundle);
-    const query = queryString.parse(location.search);
-    startApp(app, query.sToken, options);
-    container && mountApp(app, container);
-    return app;
-}
+    const platform = window.platform;
+    if (process.env.NODE_ENV === 'development') platform.debug = true;
 
-function linkApp (TaskBundle) {
-    return link(function (bundle) {
-        bundle.defineAction('init', '@@redux/INIT');
-        bundle.addReducer('init', () => ({}));
-        bundle.include(AppBundle);
-        bundle.include(PlatformBundle);
-        bundle.include(HintsBundle);
-        bundle.include(TaskBundle);
-    });
-}
+    const {actions, views, reducer, saga} = link({includes: [AppBundle, TaskBundle]});
 
-function startApp (app, taskToken, options) {
-    const {store, scope, start} = app;
-    if (process.env.NODE_ENV === 'development') window.platform.debug = true;
-    const platformApi = makePlatformAdapter(window.platform);
-    const taskApi = new TaskApi(store, scope);
-    const serverApi = makeServerApi(options.server_module, taskToken);
+    /* Build the store. */
+    const safeReducer = function (state, action) {
+        try {
+            console.log('Reducing', action);
+            state = reducer(state, action);
+            console.log('New state', state);
+            return state;
+        } catch (ex) {
+            console.log('action failed to reduce', action, ex);
+            return {...state, errors: [ex]};
+        }
+    };
+    const sagaMiddleware = createSagaMiddleware();
+    const enhancer = applyMiddleware(sagaMiddleware);
+    const store = createStore(safeReducer, {actions, views}, enhancer);
+
+    /* Start the sagas. */
+    function start () {
+        sagaMiddleware.run(function* () {
+            try {
+                yield call(saga);
+            } catch (error) {
+                console.log('sagas crashed', error);
+            }
+        });
+    }
     start();
-    store.dispatch({type: scope.appInit, payload: {scope, taskToken, platformApi, taskApi, serverApi, options}});
-}
 
-function mountApp (app, container) {
-    const {store, scope: {App}} = app;
-    ReactDOM.render(<Provider store={store}><App/></Provider>, container);
+    /* Dispatch the appInit action. */
+    const query = queryString.parse(location.search);
+    const taskToken = query.sToken;
+    store.dispatch({type: actions.appInit, payload: {options, taskToken, platform}});
+
+    /* Start rendering. */
+    ReactDOM.render(<Provider store={store}><views.App/></Provider>, container);
+
+    return {actions, views, store, start};
 }

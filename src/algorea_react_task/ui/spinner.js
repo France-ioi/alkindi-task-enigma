@@ -1,12 +1,12 @@
+
 import React from 'react';
-import EpicComponent from 'epic-component';
 
-export default EpicComponent(self => {
+function Spinner (props) {
+  return (
+    <div className='text-center' style={{fontSize: '300%'}}>
+      <i className="fa fa-spinner fa-spin"/>
+    </div>
+  );
+}
 
-    self.render = () => {
-        return (
-            <div className='text-center' style={{fontSize: '300%'}}><i className="fa fa-spinner fa-spin"/></div>
-        );
-   };
-
-});
+export default Spinner

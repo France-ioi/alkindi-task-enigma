@@ -1,13 +1,8 @@
 
 import React from 'react';
+import {connect} from 'react-redux';
 import {range} from 'range';
 import seedrandom from 'seedrandom';
-
-export default function (bundle) {
-  bundle.addReducer('appInit', appInitReducer);
-  bundle.addLateReducer(frequencyAnalysisLateReducer);
-  bundle.defineView('FrequencyAnalysis', FrequencyAnalysisSelector, FrequencyAnalysisView);
-}
 
 function appInitReducer (state, _action) {
   return {...state, frequencyAnalysis: {}};
@@ -151,4 +146,14 @@ class ReferenceFrequencyBox extends React.PureComponent {
       </div>
     );
   }
+}
+
+export default {
+  actionReducers: {
+    appInit: appInitReducer
+  },
+  lateReducer: frequencyAnalysisLateReducer,
+  views: {
+    FrequencyAnalysis: connect(FrequencyAnalysisSelector)(FrequencyAnalysisView)
+  },
 }

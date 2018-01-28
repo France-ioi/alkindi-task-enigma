@@ -1,16 +1,10 @@
 
 import React from 'react';
+import {connect} from 'react-redux';
 import {range} from 'range';
 
-export default function (bundle) {
-
-  bundle.use('CipheredText', 'SelectedText', 'FrequencyAnalysis', 'Rotor', 'SchedulingControls', 'DecipheredText');
-  bundle.defineView('Workspace', WorkspaceSelector, Workspace);
-
-}
-
 function WorkspaceSelector (state) {
-  const {scope: {CipheredText, SelectedText, FrequencyAnalysis, Rotor, SchedulingControls, DecipheredText}, rotors} = state;
+  const {views: {CipheredText, SelectedText, FrequencyAnalysis, Rotor, SchedulingControls, DecipheredText}, rotors} = state;
   return {CipheredText, SelectedText, FrequencyAnalysis, Rotor, SchedulingControls, DecipheredText, nbRotors: rotors.length};
 }
 
@@ -32,5 +26,11 @@ class Workspace extends React.PureComponent {
         <DecipheredText/>
       </div>
     );
+  }
+}
+
+export default {
+  views: {
+    Workspace: connect(WorkspaceSelector)(Workspace),
   }
 }

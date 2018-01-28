@@ -1,14 +1,14 @@
+
 import React from 'react';
-import EpicComponent from 'epic-component';
 
-export default EpicComponent(self => {
+function TaskBar (props) {
+  return (
+     <div className='task-bar'>
+        <button type='button' className='btn btn-default' onClick={props.onValidate}>
+          {"Validate"}
+        </button>
+     </div>
+  );
+}
 
-   self.render = () => {
-      return (
-         <div className='task-bar'>
-            <button type='button' className='btn btn-default' onClick={self.props.onValidate}>Validate</button>
-         </div>
-      );
-   };
-
-});
+export default TaskBar
