@@ -63,7 +63,9 @@ function* taskGetMetaDataEventSaga ({payload: {success, error: _error}}) {
     /* TODO: implement */
     /* XXX legacy code does not pass error callback
        yield call(error, 'not implemented'); */
-    yield call(success, {});
+    const metaData = yield select(({taskMetaData}) => taskMetaData);
+    console.log('task.getMetaData', metaData);
+    yield call(success, metaData);
 }
 
 function* taskReloadAnswerEventSaga ({payload: {answer, success, error}}) {
