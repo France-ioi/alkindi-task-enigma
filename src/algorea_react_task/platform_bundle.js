@@ -71,9 +71,11 @@ function* taskGetMetaDataEventSaga ({payload: {success, error: _error}}) {
 function* taskReloadAnswerEventSaga ({payload: {answer, success, error}}) {
     const {taskAnswerLoaded, taskRefresh} = yield select(({actions}) => actions);
     try {
-        answer = JSON.parse(answer);
-        yield put({type: taskAnswerLoaded, payload: {answer}});
-        yield put({type: taskRefresh});
+        if (answer) {
+            answer = JSON.parse(answer);
+            yield put({type: taskAnswerLoaded, payload: {answer}});
+            yield put({type: taskRefresh});
+        }
         yield call(success);
     } catch (ex) {
         yield call(error, `bad answer: ${ex.message}`);
@@ -83,10 +85,11 @@ function* taskReloadAnswerEventSaga ({payload: {answer, success, error}}) {
 function* taskReloadStateEventSaga ({payload: {state, success, error}}) {
     const {reloadState, taskRefresh} = yield select(({actions}) => actions);
     try {
-        /* XXX some tasks want to store more of the UI state than just the hints */
-        const hints = JSON.parse(state);
-        yield put({type: reloadState, payload: {hints}});
-        yield put({type: taskRefresh});
+        if (state) {
+            const dump = JSON.parse(state);
+            yield put({type: reloadState, payload: {dump}});
+            yield put({type: taskRefresh});
+        }
         yield call(success);
     } catch (ex) {
         yield call(error, `bad state: ${ex.message}`);
