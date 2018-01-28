@@ -139,7 +139,7 @@ function markRotorConflicts (rotor) {
   return update(rotor, {cells: changes});
 }
 
-function updatePerms (rotor) {
+export function updatePerms (rotor) {
   const {size, alphabet, cells} = rotor;
   const forward = new Array(size).fill(-1);
   const backward = new Array(size).fill(-1);

@@ -44,6 +44,7 @@
     "font-awesome": "^4.7.0",
     "html5shiv": "^3.7.3",
     "immutability-helper": "^2.6.4",
+    "json-stable-stringify-without-jsonify": "^1.0.1",
     "object.assign": "^4.0.4",
     "query-string": "^5.0.1",
     "range": "^0.0.3",

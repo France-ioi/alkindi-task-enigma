@@ -6,7 +6,7 @@
 import {all, call} from 'redux-saga/effects';
 
 export default function link (rootBundle, features) {
-  features = features || [Actions, Views, EarlyReducers, Reducers, ActionReducers, LateReducers, Sagas];
+  features = features || [Actions, Views, Selectors, EarlyReducers, Reducers, ActionReducers, LateReducers, Sagas];
   const app = {};
   for (let feature of features) {
     feature.prepare(app);
@@ -131,8 +131,21 @@ const Sagas = {
   },
   finalize: function (app) {
     const effects = app.sagas.map(function (saga) { return call(saga); });
-    app.saga = function* () { yield all(effects); };
+    app.rootSaga = function* () { yield all(effects); };
     delete app.sagas;
+  }
+};
+
+const Selectors = {
+  prepare: function (app) {
+    app.selectors = {};
+  },
+  add: function (app, {selectors}) {
+    if (selectors) {
+      Object.assign(app.selectors, selectors);
+    }
+  },
+  finalize: function (_app) {
   }
 };
 

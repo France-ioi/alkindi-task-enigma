@@ -5,6 +5,7 @@
 */
 
 import {call, put, select, takeEvery} from 'redux-saga/effects';
+import stringify from 'json-stable-stringify-without-jsonify';
 
 function taskDataLoadedReducer (state, {payload: {taskData}}) {
     return {...state, taskData};
@@ -53,12 +54,6 @@ function* taskUnloadEventSaga ({payload: {success}}) {
     yield call(success);
 }
 
-function* taskGetStateEventSaga ({payload: {success}}) {
-    /* XXX some tasks want to store more of the UI state than just the hints */
-    const hints = yield select(state => state.hints);
-    yield call(success, JSON.stringify(hints));
-}
-
 function* taskGetMetaDataEventSaga ({payload: {success, error: _error}}) {
     /* TODO: implement */
     /* XXX legacy code does not pass error callback
@@ -68,12 +63,19 @@ function* taskGetMetaDataEventSaga ({payload: {success, error: _error}}) {
     yield call(success, metaData);
 }
 
+function* taskGetAnswerEventSaga ({payload: {success}}) {
+    /* TODO: serialize answer */
+    const answer = yield select(state => state.selectors.getTaskAnswer(state));
+    const strAnswer = stringify(answer);
+    console.log('stringified answer', answer, strAnswer);
+    yield call(success, strAnswer);
+}
+
 function* taskReloadAnswerEventSaga ({payload: {answer, success, error}}) {
     const {taskAnswerLoaded, taskRefresh} = yield select(({actions}) => actions);
     try {
         if (answer) {
-            answer = JSON.parse(answer);
-            yield put({type: taskAnswerLoaded, payload: {answer}});
+            yield put({type: taskAnswerLoaded, payload: {answer: JSON.parse(answer)}});
             yield put({type: taskRefresh});
         }
         yield call(success);
@@ -82,23 +84,24 @@ function* taskReloadAnswerEventSaga ({payload: {answer, success, error}}) {
     }
 }
 
+function* taskGetStateEventSaga ({payload: {success}}) {
+    const dump = yield select(state => state.selectors.getTaskState(state));
+    const strDump = stringify(dump);
+    console.log('stringified state', dump);
+    yield call(success, strDump);
+}
+
 function* taskReloadStateEventSaga ({payload: {state, success, error}}) {
-    const {reloadState, taskRefresh} = yield select(({actions}) => actions);
+    const {taskStateLoaded, taskRefresh} = yield select(({actions}) => actions);
     try {
         if (state) {
-            const dump = JSON.parse(state);
-            yield put({type: reloadState, payload: {dump}});
+            yield put({type: taskStateLoaded, payload: {dump: JSON.parse(state)}});
             yield put({type: taskRefresh});
         }
         yield call(success);
     } catch (ex) {
         yield call(error, `bad state: ${ex.message}`);
     }
-}
-
-function* taskGetAnswerEventSaga ({payload: {success}}) {
-    const answer = yield select(state => state.answer);
-    yield call(success, JSON.stringify(answer));
 }
 
 function* taskLoadEventSaga ({payload: {views: _views, success, error}}) {

@@ -24,7 +24,7 @@ export default function (container, options, TaskBundle) {
     const platform = window.platform;
     if (process.env.NODE_ENV === 'development') platform.debug = true;
 
-    const {actions, views, reducer, saga} = link({includes: [AppBundle, TaskBundle]});
+    const {actions, views, selectors, reducer, rootSaga} = link({includes: [AppBundle, TaskBundle]});
 
     /* Build the store. */
     const safeReducer = function (state, action) {
@@ -37,13 +37,13 @@ export default function (container, options, TaskBundle) {
     };
     const sagaMiddleware = createSagaMiddleware();
     const enhancer = applyMiddleware(sagaMiddleware);
-    const store = createStore(safeReducer, {actions, views}, enhancer);
+    const store = createStore(safeReducer, {actions, views, selectors}, enhancer);
 
     /* Start the sagas. */
     function start () {
         sagaMiddleware.run(function* () {
             try {
-                yield call(saga);
+                yield call(rootSaga);
             } catch (error) {
                 console.log('sagas crashed', error);
             }
