@@ -25,6 +25,12 @@ export default function (platform) {
         });
     }
 
-    return {initWithTask, getTaskParams, askHint, validate};
+    function updateDisplay (options) {
+        return new Promise(function (resolve, reject) {
+            platform.updateDisplay(options, resolve, reject);
+        });
+    }
+
+    return {initWithTask, getTaskParams, askHint, validate, updateDisplay};
 
 }

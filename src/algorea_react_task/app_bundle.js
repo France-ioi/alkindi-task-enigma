@@ -1,7 +1,6 @@
 import React from 'react';
 import {connect} from 'react-redux';
-import {call, takeEvery, select, take, put} from 'redux-saga/effects';
-import {Alert} from 'react-bootstrap';
+import {call, fork, takeEvery, select, take, put} from 'redux-saga/effects';
 
 import TaskBar from './ui/task_bar';
 import Spinner from './ui/spinner';
@@ -10,6 +9,7 @@ import makeServerApi from './server_api';
 import makePlatformAdapter from './legacy/platform_adapter';
 import PlatformBundle from './platform_bundle';
 import HintsBundle from './hints_bundle';
+import {windowHeightMonitorSaga} from './window_height_monitor';
 
 function appInitReducer (state, {payload: {taskToken, options}}) {
     return {...state, taskToken, options};
@@ -62,6 +62,9 @@ function* appInitSaga ({payload: {taskToken, options, platform}}) {
     }
     yield put({type: actions.appInitDone, payload: {taskApi, platformApi, serverApi}});
     yield call(platformApi.initWithTask, taskApi);
+    /* XXX platform.initWithTask fails to conform to Operations API and never
+           return, causing the saga to remain stuck at this point. */
+    yield fork(windowHeightMonitorSaga, platformApi);
 }
 
 function* platformValidateSaga ({payload: {mode}}) {
