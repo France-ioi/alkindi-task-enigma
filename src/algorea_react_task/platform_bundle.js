@@ -55,16 +55,11 @@ function* taskUnloadEventSaga ({payload: {success}}) {
 }
 
 function* taskGetMetaDataEventSaga ({payload: {success, error: _error}}) {
-    /* TODO: implement */
-    /* XXX legacy code does not pass error callback
-       yield call(error, 'not implemented'); */
     const metaData = yield select(({taskMetaData}) => taskMetaData);
-    console.log('task.getMetaData', metaData);
     yield call(success, metaData);
 }
 
 function* taskGetAnswerEventSaga ({payload: {success}}) {
-    /* TODO: serialize answer */
     const answer = yield select(state => state.selectors.getTaskAnswer(state));
     const strAnswer = stringify(answer);
     yield call(success, strAnswer);
@@ -128,7 +123,6 @@ function* taskGradeAnswerEventSaga ({payload: {answer, answerToken, success, err
             max_score: maxScore,
             no_score: noScore
         });
-        console.warn('TODO: handle grading result', result);
         const {score} = result;
         const message = "TODO";
         const scoreToken = "TODO";

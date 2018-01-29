@@ -52,7 +52,6 @@ function* appInitSaga ({payload: {taskToken, options, platform}}) {
         taskChannel = yield call(makeTaskChannel);
         taskApi = (yield take(taskChannel)).task;
         yield takeEvery(taskChannel, function* ({type, payload}) {
-            console.log(`task.${type}`, payload);
             const action = {type: actions[taskActions[type]], payload};
             yield put(action);
         });

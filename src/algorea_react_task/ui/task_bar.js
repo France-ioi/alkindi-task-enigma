@@ -1,6 +1,6 @@
 
 import React from 'react';
-import {Button} from 'react-bootstrap'
+import {Button} from 'react-bootstrap';
 
 function TaskBar (props) {
   return (

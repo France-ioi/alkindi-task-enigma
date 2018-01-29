@@ -31,7 +31,7 @@ export default function (container, options, TaskBundle) {
         try {
             return reducer(state, action);
         } catch (ex) {
-            console.log('action failed to reduce', action, ex);
+            console.error('action failed to reduce', action, ex);
             return {...state, errors: [ex]};
         }
     };
@@ -45,7 +45,7 @@ export default function (container, options, TaskBundle) {
             try {
                 yield call(rootSaga);
             } catch (error) {
-                console.log('sagas crashed', error);
+                console.error('sagas crashed', error);
             }
         });
     }
