@@ -31,6 +31,17 @@ function rotorCellLockChangedReducer (state, {payload: {rotorIndex, rank, isLock
   return update(state, {rotors: {[rotorIndex]: {$set: rotor}}});
 }
 
+function rotorKeyLoadedReducer (state, {payload: {rotorIndex, key}}) {
+  const {taskData: {alphabet}} = state;
+  const $cells = {};
+  key.split('').forEach((symbol, cellIndex) => {
+    $cells[cellIndex] = {
+      editable: {$set: alphabet.indexOf(symbol) === -1 ? null : symbol}
+    };
+  });
+  return update(state, {rotors: {[rotorIndex]: {cells: $cells}}});
+}
+
 function RotorSelector (state, {index}) {
   const {actions: {rotorCellLockChanged, rotorCellCharChanged}, rotors, scheduling: {shifts}} = state;
   const {editableRow, cells} = rotors[index];
@@ -153,12 +164,14 @@ export default {
   actions: {
     rotorCellLockChanged: 'Rotor.Cell.Lock.Changed',
     rotorCellCharChanged: 'Rotor.Cell.Char.Changed',
+    rotorKeyLoaded: 'Rotor.Key.Loaded',
   },
   actionReducers: {
     appInit: appInitReducer,
     taskInit: taskInitReducer,
     rotorCellLockChanged: rotorCellLockChangedReducer,
     rotorCellCharChanged: rotorCellCharChangedReducer,
+    rotorKeyLoaded: rotorKeyLoadedReducer,
   },
   views: {
     Rotor: connect(RotorSelector)(RotorView)
