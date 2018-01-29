@@ -139,6 +139,16 @@ function markRotorConflicts (rotor) {
   return update(rotor, {cells: changes});
 }
 
+export function updateRotorWithKey (alphabet, rotor, key) {
+  const $cells = {};
+  key.split('').forEach((symbol, cellIndex) => {
+    $cells[cellIndex] = {
+      editable: {$set: alphabet.indexOf(symbol) === -1 ? null : symbol}
+    };
+  });
+  return updatePerms(update(rotor, {cells: $cells}));
+}
+
 export function updatePerms (rotor) {
   const {size, alphabet, cells} = rotor;
   const forward = new Array(size).fill(-1);

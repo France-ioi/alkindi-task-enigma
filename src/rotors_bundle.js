@@ -5,7 +5,7 @@ import classnames from 'classnames';
 import {range} from 'range';
 import update from 'immutability-helper';
 
-import {makeRotor, editRotorCell, lockRotorCell} from './utils';
+import {makeRotor, editRotorCell, lockRotorCell, updateRotorWithKey} from './utils';
 
 function appInitReducer (state, _action) {
   return {...state, rotors: []};
@@ -32,14 +32,9 @@ function rotorCellLockChangedReducer (state, {payload: {rotorIndex, rank, isLock
 }
 
 function rotorKeyLoadedReducer (state, {payload: {rotorIndex, key}}) {
-  const {taskData: {alphabet}} = state;
-  const $cells = {};
-  key.split('').forEach((symbol, cellIndex) => {
-    $cells[cellIndex] = {
-      editable: {$set: alphabet.indexOf(symbol) === -1 ? null : symbol}
-    };
-  });
-  return update(state, {rotors: {[rotorIndex]: {cells: $cells}}});
+  const {taskData: {alphabet}, rotors} = state;
+  const rotor = updateRotorWithKey(alphabet, rotors[rotorIndex], key);
+  return update(state, {rotors: {[rotorIndex]: {$set: rotor}}});
 }
 
 function RotorSelector (state, {index}) {
