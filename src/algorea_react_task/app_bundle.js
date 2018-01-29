@@ -92,19 +92,14 @@ class App extends React.PureComponent {
         if (!taskReady) {
             return <Spinner/>;
         }
-        const {validate} = this.state;
         return (
             <div>
                 <Workspace/>
-                {validate
-                    ? <Alert bsStyle='danger'>{"La validation n'est pas encore en place, elle le sera très bientôt"}</Alert>
-                    : <TaskBar onValidate={this._validate}/>}
+                <TaskBar onValidate={this._validate}/>
             </div>
         );
     }
-    state = {};
     _validate = () => {
-        this.setState({validate: true});
         this.props.dispatch({type: this.props.platformValidate, payload: {mode: 'done'}});
     };
 }
