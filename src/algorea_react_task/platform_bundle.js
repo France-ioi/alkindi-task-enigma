@@ -67,7 +67,6 @@ function* taskGetAnswerEventSaga ({payload: {success}}) {
     /* TODO: serialize answer */
     const answer = yield select(state => state.selectors.getTaskAnswer(state));
     const strAnswer = stringify(answer);
-    console.log('stringified answer', answer, strAnswer);
     yield call(success, strAnswer);
 }
 
@@ -87,7 +86,6 @@ function* taskReloadAnswerEventSaga ({payload: {answer, success, error}}) {
 function* taskGetStateEventSaga ({payload: {success}}) {
     const dump = yield select(state => state.selectors.getTaskState(state));
     const strDump = stringify(dump);
-    console.log('stringified state', dump);
     yield call(success, strDump);
 }
 
@@ -120,7 +118,7 @@ function* taskLoadEventSaga ({payload: {views: _views, success, error}}) {
 
 function* taskGradeAnswerEventSaga ({payload: {answer, answerToken, success, error}}) {
     try {
-        const {taskToken, platformAdapter: {getTaskParams}, serverApi} = yield select(state => state);
+        const {taskToken, platformApi: {getTaskParams}, serverApi} = yield select(state => state);
         const {minScore, maxScore, noScore} = yield call(getTaskParams, null, null);
         const result = yield call(serverApi, 'tasks', 'gradeAnswer', {
             task: taskToken,
@@ -144,17 +142,17 @@ export default {
     actions: {
         taskInit: 'Task.Init',
         taskRefresh: 'Task.Refresh',
-        taskShowViewsEvent: 'Task.Event.ShowViews' /* {views, success, error} */,
-        taskGetViewsEvent: 'Task.Event.GetViews' /* {success, error} */,
+        taskLoadEvent: 'Task.Event.Load' /* {views, success, error} */,
+        taskUnloadEvent: 'Task.Event.Unload' /* {success, error} */,
         taskUpdateTokenEvent: 'Task.Event.UpdateToken' /* {token, success, error} */,
         taskGetHeightEvent: 'Task.Event.GetHeight' /* {success, error} */,
-        taskUnloadEvent: 'Task.Event.Unload' /* {success, error} */,
-        taskGetStateEvent: 'Task.Event.GetState' /* {success, error} */,
         taskGetMetaDataEvent: 'Task.Event.GetMetaData' /* {success, error} */,
-        taskReloadAnswerEvent: 'Task.Event.ReloadAnswer' /* {answer, success, error} */,
+        taskGetViewsEvent: 'Task.Event.GetViews' /* {success, error} */,
+        taskShowViewsEvent: 'Task.Event.ShowViews' /* {views, success, error} */,
+        taskGetStateEvent: 'Task.Event.GetState' /* {success, error} */,
         taskReloadStateEvent: 'Task.Event.ReloadState' /* {state, success, error} */,
         taskGetAnswerEvent: 'Task.Event.GetAnswer' /* {success, error} */,
-        taskLoadEvent: 'Task.Event.Load' /* {views, success, error} */,
+        taskReloadAnswerEvent: 'Task.Event.ReloadAnswer' /* {answer, success, error} */,
         taskGradeAnswerEvent: 'Task.Event.GradeAnswer' /* {answer, answerToken, success, error} */,
         taskDataLoaded: 'Task.Data.Loaded',
         taskStateLoaded: 'Task.State.Loaded',

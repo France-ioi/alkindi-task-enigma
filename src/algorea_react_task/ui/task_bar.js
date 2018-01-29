@@ -1,12 +1,13 @@
 
 import React from 'react';
+import {Button} from 'react-bootstrap'
 
 function TaskBar (props) {
   return (
      <div className='task-bar'>
-        <button type='button' className='btn btn-default' onClick={props.onValidate}>
-          {"Validate"}
-        </button>
+        <Button onClick={props.onValidate}>
+          {"Valider"}
+        </Button>
      </div>
   );
 }

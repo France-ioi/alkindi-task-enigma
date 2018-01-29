@@ -1,6 +1,7 @@
 import React from 'react';
 import {connect} from 'react-redux';
 import {call, takeEvery, select, take, put} from 'redux-saga/effects';
+import {Alert} from 'react-bootstrap';
 
 import TaskBar from './ui/task_bar';
 import Spinner from './ui/spinner';
@@ -29,17 +30,18 @@ function* appSaga () {
 }
 
 const taskActions = { /* map task method names to action types */
-    showViews: 'taskShowViewsEvent',
-    getViews: 'taskGetViewsEvent',
+    load: 'taskLoadEvent',
+    unload: 'taskUnloadEvent',
     updateToken: 'taskUpdateTokenEvent',
     getHeight: 'taskGetHeightEvent',
-    unload: 'taskUnloadEvent',
-    getState: 'taskGetStateEvent',
     getMetaData: 'taskGetMetaDataEvent',
-    reloadAnswer: 'taskReloadAnswerEvent',
+    getViews: 'taskGetViewsEvent',
+    showViews: 'taskShowViewsEvent',
+    getState: 'taskGetStateEvent',
     reloadState: 'taskReloadStateEvent',
     getAnswer: 'taskGetAnswerEvent',
-    load: 'taskLoadEvent',
+    reloadAnswer: 'taskReloadAnswerEvent',
+    gradeAnswer: 'taskGradeAnswerEvent',
 };
 
 function* appInitSaga ({payload: {taskToken, options, platform}}) {
@@ -50,6 +52,7 @@ function* appInitSaga ({payload: {taskToken, options, platform}}) {
         taskChannel = yield call(makeTaskChannel);
         taskApi = (yield take(taskChannel)).task;
         yield takeEvery(taskChannel, function* ({type, payload}) {
+            console.log(`task.${type}`, payload);
             const action = {type: actions[taskActions[type]], payload};
             yield put(action);
         });
@@ -87,14 +90,19 @@ class App extends React.PureComponent {
         if (!taskReady) {
             return <Spinner/>;
         }
+        const {validate} = this.state;
         return (
             <div>
                 <Workspace/>
-                <TaskBar onValidate={this._validate}/>
+                {validate
+                    ? <Alert bsStyle='danger'>{"La validation n'est pas encore en place, elle le sera très bientôt"}</Alert>
+                    : <TaskBar onValidate={this._validate}/>}
             </div>
         );
     }
+    state = {};
     _validate = () => {
+        this.setState({validate: true});
         this.props.dispatch({type: this.props.platformValidate, payload: {mode: 'done'}});
     };
 }
