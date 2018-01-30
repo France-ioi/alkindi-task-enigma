@@ -215,3 +215,7 @@ function applyShift (mod, amount, rank) {
   }
   return rank;
 }
+
+export function wrapAround (value, mod) {
+  return ((value % mod) + mod) % mod;
+}
