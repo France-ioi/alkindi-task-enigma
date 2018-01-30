@@ -61,6 +61,8 @@ function* appInitSaga ({payload: {taskToken, options, platform}}) {
         return;
     }
     yield put({type: actions.appInitDone, payload: {taskApi, platformApi, serverApi}});
+    /* XXX Ideally platform.initWithTask would take care of setting its global. */
+    window.task = taskApi;
     yield call(platformApi.initWithTask, taskApi);
     /* XXX platform.initWithTask fails to conform to Operations API and never
            return, causing the saga to remain stuck at this point. */
