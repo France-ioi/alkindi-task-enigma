@@ -105,6 +105,31 @@ export function makeRotor (alphabet, {schedule, editableRow}) {
   return {alphabet, size, schedule, editableRow, cells, forward: nullPerm, backward: nullPerm};
 }
 
+export function dumpRotors (alphabet, rotors) {
+  return rotors.map(rotor =>
+    rotor.cells.map(({editable, locked}) =>
+      [alphabet.indexOf(editable), locked ? 1 : 0]));
+}
+
+export function loadRotors (alphabet, rotorSpecs, rotorDumps) {
+  return rotorDumps.map((cells, rotorIndex) => {
+    const $cells = [];
+    cells.forEach((cell, cellIndex) => {
+      /* Locking information is not included in the answer. */
+      if (typeof cell === 'number') cell = [cell, false];
+      const [rank, locked] = cell;
+      $cells[cellIndex] = {
+        editable: {$set: rank === -1 ? null : alphabet[rank]},
+        locked: {$set: locked !== 0},
+      };
+    });
+    let rotor = makeRotor(alphabet, rotorSpecs[rotorIndex]);
+    rotor = update(rotor, {cells: $cells});
+    rotor = markRotorConflicts(updatePerms(rotor));
+    return rotor;
+  });
+}
+
 export function editRotorCell (rotor, rank, symbol) {
   rotor = update(rotor, {cells: {[rank]: {editable: {$set: symbol}}}});
   return updatePerms(markRotorConflicts(rotor));

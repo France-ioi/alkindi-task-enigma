@@ -13,7 +13,7 @@ import SchedulingBundle from './scheduling_bundle';
 import RotorsBundle from './rotors_bundle';
 import DecipheredTextBundle from './deciphered_text_bundle';
 import WorkspaceBundle from './workspace_bundle';
-import {updatePerms} from './utils';
+import {dumpRotors, loadRotors} from './utils';
 
 const TaskBundle = {
     actionReducers: {
@@ -79,48 +79,21 @@ function getTaskAnswer (state) {
   };
 }
 
-function taskAnswerLoaded (state, {payload: {answer: {rotors}}}) {
-  const {taskData: {alphabet}} = state;
-  const $rotors = {};
-  if (rotors) {
-    rotors.forEach((cells, rotorIndex) => {
-      const $cells = [];
-      cells.forEach((rank, cellIndex) => {
-        $cells[cellIndex] = {
-          editable: {$set: rank === -1 ? null : alphabet[rank]}
-        };
-      });
-      $rotors[rotorIndex] = {cells: $cells};
-    });
-  }
-  return update(state, {rotors: $rotors});
+function taskAnswerLoaded (state, {payload: {answer}}) {
+  const {taskData: {alphabet, rotors: rotorSpecs}} = state;
+  const rotors = loadRotors(alphabet, rotorSpecs, answer.rotors);
+  return update(state, {rotors: {$set: rotors}});
 }
 
 function getTaskState (state) {
   const {taskData: {alphabet}} = state;
-  const rotors = state.rotors.map(rotor => rotor.cells.map(({editable, locked}) => [alphabet.indexOf(editable), locked ? 1 : 0]));
-  return {rotors};
+  return {rotors: dumpRotors(alphabet, state.rotors)};
 }
 
-function taskStateLoaded (state, {payload: {dump: {rotors}}}) {
-  const {taskData: {alphabet}} = state;
-  const $rotors = {};
-  if (rotors) {
-    rotors.forEach((cells, rotorIndex) => {
-      const $cells = [];
-      cells.forEach(([rank, locked], cellIndex) => {
-        $cells[cellIndex] = {
-          editable: {$set: rank === -1 ? null : alphabet[rank]},
-          locked: {$set: locked !== 0},
-        };
-      });
-      let rotor = state.rotors[rotorIndex];
-      rotor = update(rotor, {cells: $cells});
-      rotor = updatePerms(rotor);
-      $rotors[rotorIndex] = {$set: rotor};
-    });
-  }
-  return update(state, {rotors: $rotors});
+function taskStateLoaded (state, {payload: {dump}}) {
+  const {taskData: {alphabet, rotors: rotorSpecs}} = state;
+  const rotors = loadRotors(alphabet, rotorSpecs, dump.rotors);
+  return update(state, {rotors: {$set: rotors}});
 }
 
 export function run (container, options) {
