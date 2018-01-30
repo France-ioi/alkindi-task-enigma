@@ -111,7 +111,7 @@ export function dumpRotors (alphabet, rotors) {
       [alphabet.indexOf(editable), locked ? 1 : 0]));
 }
 
-export function loadRotors (alphabet, rotorSpecs, rotorDumps) {
+export function loadRotors (alphabet, rotorSpecs, hints, rotorDumps) {
   return rotorDumps.map((cells, rotorIndex) => {
     const $cells = [];
     cells.forEach((cell, cellIndex) => {
@@ -122,6 +122,14 @@ export function loadRotors (alphabet, rotorSpecs, rotorDumps) {
         editable: {$set: rank === -1 ? null : alphabet[rank]},
         locked: {$set: locked !== 0},
       };
+    });
+    hints.forEach(({rotorIndex: i, cellRank: j, symbol}) => {
+      if (rotorIndex === i) {
+        $cells[j] = {
+          editable: {$set: symbol},
+          hint: {$set: true},
+        };
+      }
     });
     let rotor = makeRotor(alphabet, rotorSpecs[rotorIndex]);
     rotor = update(rotor, {cells: $cells});
@@ -194,9 +202,11 @@ export function getRotorShift (rotor, position) {
 }
 
 export function applyRotors (rotors, position, rank) {
-  const result = {rank, locks: 0};
+  const result = {rank, locks: 0, trace: []};
   for (let rotorIndex = 0; rotorIndex < rotors.length; rotorIndex += 1) {
-    applyRotor(rotors[rotorIndex], position, result);
+    const rotor = rotors[rotorIndex];
+    const shift = getRotorShift(rotor, position);
+    applyRotor(rotor, shift, result);
     if (result.rank === -1) {
       break;
     }
@@ -207,8 +217,7 @@ export function applyRotors (rotors, position, rank) {
   return result;
 }
 
-function applyRotor (rotor, position, result) {
-  const shift = getRotorShift(rotor, position);
+export function applyRotor (rotor, shift, result) {
   let rank = result.rank, cell;
   /* Negative shift to the static top row before permutation. */
   if (rotor.editableRow === 'bottom') {
@@ -225,7 +234,9 @@ function applyRotor (rotor, position, result) {
   /* Save new rank (can be -1) and attributes. */
   result.rank = rank;
   if (cell) {
-    if (cell.locked) {
+    /* Save the rotor cell used in the trace. */
+    result.trace.push(cell);
+    if (cell.locked || cell.hint) {
       result.locks += 1;
     }
     if (cell.collision) {

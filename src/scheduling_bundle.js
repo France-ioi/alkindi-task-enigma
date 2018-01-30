@@ -6,7 +6,7 @@ import update from 'immutability-helper';
 import {delay} from 'redux-saga';
 import {select, takeLatest, put} from 'redux-saga/effects';
 
-import {getRotorShift} from './utils';
+import {applyRotors, getRotorShift} from './utils';
 
 function appInitReducer (state, _action) {
   return {...state, scheduling: {
@@ -15,7 +15,8 @@ function appInitReducer (state, _action) {
     position: 0,
     shifts: [],
     startPosition: 0,
-    endPosition: 0
+    endPosition: 0,
+    currentTrace: [],
   }};
 }
 
@@ -78,13 +79,21 @@ function schedulingTickReducer (state, _action) {
 }
 
 function schedulingLateReducer (state) {
-  const {rotors, scheduling} = state;
-  if (!scheduling) {
+  const {taskData, rotors, scheduling} = state;
+  if (!taskData) {
     return state;
   }
+  const {alphabet, cipherText} = taskData;
   const {position} = scheduling;
+  /* Compute the rotor shifts at the current position */
   const shifts = rotors.map(rotor => getRotorShift(rotor, position));
-  return update(state, {scheduling: {shifts: {$set: shifts}}});
+  const rank = alphabet.indexOf(cipherText[position]);
+  /* Apply the rotors at the current position to obtain a trace (list of rotor
+     cells used during decoding), to be highlighted by the rotor views. */
+  const currentTrace = rank === -1 ? null : applyRotors(rotors, position, rank).trace;
+  return update(state, {scheduling: {
+    shifts: {$set: shifts}, currentTrace: {$set: currentTrace}
+  }});
 }
 
 function* schedulingSaga () {
