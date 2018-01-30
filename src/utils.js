@@ -201,6 +201,9 @@ export function applyRotors (rotors, position, rank) {
       break;
     }
   }
+  if (result.locks === rotors.length) {
+    result.locked = true;
+  }
   return result;
 }
 
