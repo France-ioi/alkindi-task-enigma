@@ -35,7 +35,8 @@ function* taskGetViewsEventSaga ({payload: {success}}) {
 
 function taskUpdateTokenEventReducer (state, {payload: {token}}) {
     if (token === null) {
-        console.warn('task.updateToken with null token');
+        console.warn('ignored task.updateToken with null token');
+        return state;
     }
     return {...state, taskToken: token};
 }
@@ -102,7 +103,7 @@ function* taskLoadEventSaga ({payload: {views: _views, success, error}}) {
     /* TODO: do something with views */
     try {
         const {taskToken, serverApi} = yield select(state => state);
-        const {data: taskData} = yield call(serverApi, 'tasks', 'taskData', {task: taskToken});
+        const taskData = yield call(serverApi, 'tasks', 'taskData', {task: taskToken});
         yield put({type: taskDataLoaded, payload: {taskData}});
         yield put({type: taskInit});
         yield call(success);
@@ -116,23 +117,16 @@ function* taskGradeAnswerEventSaga ({payload: {answer, answerToken, success, err
     try {
         const {taskToken, platformApi: {getTaskParams}, serverApi} = yield select(state => state);
         const {minScore, maxScore, noScore} = yield call(getTaskParams, null, null);
-        result = yield call(serverApi, 'tasks', 'gradeAnswer', {
+        const {score, message, token: scoreToken} = yield call(serverApi, 'tasks', 'gradeAnswer', {
             task: taskToken, /* XXX task should be named taskToken */
             answer: answerToken,  /* XXX answer should be named answerToken */
             min_score: minScore, /* XXX no real point passing min_score, max_score, no_score to server-side grader */
             max_score: maxScore,
             no_score: noScore
         });
+        yield call(success, score, message, scoreToken);
     } catch (ex) {
         yield call(error, ex.toString());
-        return;
-    }
-    if (result.success) {
-        const {score, message, token: scoreToken} = result.data; /* XXX token should be named scoreToken */
-        console.log('GRADING, callback → ', score, message, scoreToken);
-        yield call(success, score, message, scoreToken);
-    } else {
-        yield call(error, result.error);
     }
 }
 

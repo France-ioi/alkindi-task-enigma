@@ -18,7 +18,7 @@ export default function makeServerApi (config) {
                 if (response.status !== 200) return reject(response);
                 response.json().catch(reject).then(function (result) {
                     if (!result.success) return reject(result.error);
-                    resolve(result);
+                    resolve(result.data);
                 });
             }).catch(reject);
         });
