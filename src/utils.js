@@ -116,7 +116,7 @@ export function loadRotors (alphabet, rotorSpecs, rotorDumps) {
     const $cells = [];
     cells.forEach((cell, cellIndex) => {
       /* Locking information is not included in the answer. */
-      if (typeof cell === 'number') cell = [cell, false];
+      if (typeof cell === 'number') cell = [cell, 0];
       const [rank, locked] = cell;
       $cells[cellIndex] = {
         editable: {$set: rank === -1 ? null : alphabet[rank]},
