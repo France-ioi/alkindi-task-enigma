@@ -2,7 +2,7 @@
 - shows a slice of the clearText
 - adds deciphered characters from start up to the "current" animation position
   (lazily computed)
-- scrolling does not affect the current animation position?
+- scrolling does not affect the current animation position
 */
 
 
@@ -75,15 +75,13 @@ class DecipheredTextView extends React.PureComponent {
   render () {
     const {width, height, visibleRows, cellWidth, cellHeight, bottom} = this.props;
     return (
-      <div>
-        <div ref={this.refTextBox} onScroll={this.onScroll} style={{position: 'relative', width: width && `${width}px`, height: height && `${height}px`, overflowY: 'scroll'}}>
-          {(visibleRows||[]).map(({index, columns}) =>
-            <div key={index} style={{position: 'absolute', top: `${index * cellHeight}px`}}>
-              {columns.map(({index, position, ciphered, clear, locked, current}) =>
-                <TextCell key={index} column={index} position={position} ciphered={ciphered} clear={clear} locked={locked} current={current} cellWidth={cellWidth} onJump={this.onJump} />)}
-            </div>)}
-          <div style={{position: 'absolute', top: `${bottom}px`, width: '1px', height: '1px'}}/>
-        </div>
+      <div ref={this.refTextBox} onScroll={this.onScroll} style={{position: 'relative', width: width && `${width}px`, height: height && `${height}px`, overflowY: 'scroll'}}>
+        {(visibleRows||[]).map(({index, columns}) =>
+          <div key={index} style={{position: 'absolute', top: `${index * cellHeight}px`}}>
+            {columns.map(({index, position, ciphered, clear, locked, current}) =>
+              <TextCell key={index} column={index} position={position} ciphered={ciphered} clear={clear} locked={locked} current={current} cellWidth={cellWidth} onJump={this.onJump} />)}
+          </div>)}
+        <div style={{position: 'absolute', top: `${bottom}px`, width: '1px', height: '1px'}}/>
       </div>
     );
   }
