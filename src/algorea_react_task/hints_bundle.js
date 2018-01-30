@@ -2,12 +2,12 @@
 import {call, put, select, takeEvery} from 'redux-saga/effects';
 import update from 'immutability-helper';
 
-function hintRequestFulfilledReducer (state, {payload: {hints}}) {
-    return update(state, {taskData: {hints: {$set: hints}}});
+function hintRequestFulfilledReducer (state, _action) {
+    return {...state, hintRequest: {success: true}};
 }
 
 function hintRequestRejectedReducer (state, {payload: {error}}) {
-    return {...state, hintRequestError: error};
+    return {...state, hintRequest: {success: false, error}};
 }
 
 function* requestHintSaga ({payload: {request}}) {
@@ -21,9 +21,9 @@ function* requestHintSaga ({payload: {request}}) {
         yield call(askHint, hintToken);
         /* When askHint returns an updated taskToken is obtained from the store. */
         const updatedTaskToken = yield select(state => state.taskToken);
-        /* Finally, contact the serverApi to obtain the updated hint data. */
-        const hints = yield call(serverApi, 'tasks', 'taskHintData', {task: updatedTaskToken});
-        yield put({type: actions.hintRequestFulfilled, payload: {hints}});
+        /* Finally, contact the serverApi to obtain the updated taskData. */
+        const taskData = yield call(serverApi, 'tasks', 'taskData', {task: updatedTaskToken});
+        yield put({type: actions.taskDataLoaded, payload: {taskData}});
         yield put({type: actions.taskRefresh});
     } catch (ex) {
         yield put({type: actions.hintRequestRejected, payload: {error: ex.toString()}});
