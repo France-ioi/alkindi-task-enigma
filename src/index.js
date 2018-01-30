@@ -65,11 +65,16 @@ function appInitReducer (state, _action) {
 }
 
 function taskInitReducer (state, _action) {
-    return {...state, taskReady: true};
+  const {taskData: {alphabet, rotors: rotorSpecs, hints}} = state;
+  const rotors = loadRotors(alphabet, rotorSpecs, hints, rotorSpecs.map(_ => []));
+  return {...state, rotors, taskReady: true};
 }
 
 function taskRefreshReducer (state, _action) {
-    return state; /* XXX figure out what needs to happen here */
+  const {taskData: {alphabet, rotors: rotorSpecs, hints}} = state;
+  const dump = dumpRotors(alphabet, state.rotors);
+  const rotors = loadRotors(alphabet, rotorSpecs, hints, dump);
+  return {...state, rotors};
 }
 
 function getTaskAnswer (state) {
@@ -80,8 +85,8 @@ function getTaskAnswer (state) {
 }
 
 function taskAnswerLoaded (state, {payload: {answer}}) {
-  const {taskData: {alphabet, rotors: rotorSpecs}} = state;
-  const rotors = loadRotors(alphabet, rotorSpecs, answer.rotors);
+  const {taskData: {alphabet, rotors: rotorSpecs, hints}} = state;
+  const rotors = loadRotors(alphabet, rotorSpecs, hints, answer.rotors);
   return update(state, {rotors: {$set: rotors}});
 }
 
@@ -91,8 +96,8 @@ function getTaskState (state) {
 }
 
 function taskStateLoaded (state, {payload: {dump}}) {
-  const {taskData: {alphabet, rotors: rotorSpecs}} = state;
-  const rotors = loadRotors(alphabet, rotorSpecs, dump.rotors);
+  const {taskData: {alphabet, rotors: rotorSpecs, hints}} = state;
+  const rotors = loadRotors(alphabet, rotorSpecs, hints, dump.rotors);
   return update(state, {rotors: {$set: rotors}});
 }
 
