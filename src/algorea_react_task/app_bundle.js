@@ -1,4 +1,5 @@
 import React from 'react';
+import {Alert} from 'react-bootstrap';
 import {connect} from 'react-redux';
 import {call, fork, takeEvery, select, take, put} from 'redux-saga/effects';
 
@@ -76,13 +77,13 @@ function* platformValidateSaga ({payload: {mode}}) {
 }
 
 function AppSelector (state) {
-    const {taskReady, fatalError, views: {Workspace}, actions: {platformValidate}} = state;
-    return {taskReady, fatalError, Workspace, platformValidate};
+    const {taskReady, fatalError, views: {Workspace}, actions: {platformValidate}, grading} = state;
+    return {taskReady, fatalError, Workspace, platformValidate, grading};
 }
 
 class App extends React.PureComponent {
     render () {
-        const {taskReady, Workspace, fatalError} = this.props;
+        const {taskReady, Workspace, fatalError, grading} = this.props;
         if (fatalError) {
             return (
                 <div>
@@ -98,6 +99,12 @@ class App extends React.PureComponent {
             <div>
                 <Workspace/>
                 <TaskBar onValidate={this._validate}/>
+                {grading.message &&
+                    <p style={{fontWeight: 'bold'}}>{grading.message}</p>}
+                {typeof grading.score === 'number' &&
+                    <p>{"Votre score : "}<span style={{fontWeight: 'bold'}}>{grading.score}</span></p>}
+                {grading.error &&
+                    <Alert bsStyle='danger'>{grading.error}</Alert>}
             </div>
         );
     }

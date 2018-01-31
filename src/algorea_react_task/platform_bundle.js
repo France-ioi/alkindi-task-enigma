@@ -7,6 +7,10 @@
 import {call, put, select, takeEvery} from 'redux-saga/effects';
 import stringify from 'json-stable-stringify-without-jsonify';
 
+function appInitReducer (state, {payload: {taskToken, options}}) {
+    return {...state, grading: {}};
+}
+
 function taskDataLoadedReducer (state, {payload: {taskData}}) {
     return {...state, taskData};
 }
@@ -113,6 +117,7 @@ function* taskLoadEventSaga ({payload: {views: _views, success, error}}) {
 }
 
 function* taskGradeAnswerEventSaga ({payload: {answer, answerToken, success, error}}) {
+    const {taskAnswerGraded} = yield select(({actions}) => actions);
     let result;
     try {
         const {taskToken, platformApi: {getTaskParams}, serverApi} = yield select(state => state);
@@ -124,10 +129,16 @@ function* taskGradeAnswerEventSaga ({payload: {answer, answerToken, success, err
             max_score: maxScore,
             no_score: noScore
         });
+        yield put({type: taskAnswerGraded, payload: {grading: {score, message}}});
         yield call(success, score, message, scoreToken);
     } catch (ex) {
+        yield put({type: taskAnswerGraded, payload: {grading: {error: ex.toString()}}});
         yield call(error, ex.toString());
     }
+}
+
+function taskAnswerGradedReducer (state, {payload: {grading}}) {
+    return {...state, grading};
 }
 
 export default {
@@ -149,13 +160,16 @@ export default {
         taskDataLoaded: 'Task.Data.Loaded',
         taskStateLoaded: 'Task.State.Loaded',
         taskAnswerLoaded: 'Task.Answer.Loaded',
+        taskAnswerGraded: 'Task.Answer.Graded',
     },
     actionReducers: {
+        appInit: appInitReducer,
         taskShowViewsEvent: taskShowViewsEventReducer,
         taskUpdateTokenEvent: taskUpdateTokenEventReducer,
         taskDataLoaded: taskDataLoadedReducer,
         taskStateLoaded: taskStateLoadedReducer,
         taskAnswerLoaded: taskAnswerLoadedReducer,
+        taskAnswerGraded: taskAnswerGradedReducer,
     },
     saga: function* () {
         const actions = yield select(({actions}) => actions);
