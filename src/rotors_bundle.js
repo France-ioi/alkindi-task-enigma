@@ -158,7 +158,7 @@ class RotorCell extends React.PureComponent {
       <div style={editableCellStyle} onClick={this.startEditing}>
         {isEditing
           ? <input ref={this.refInput} onChange={this.cellChanged} onKeyDown={this.keyDown}
-              type='text' value={editableChar||''} style={{width: '19px', height: '20px', border: 'none'}} />
+              type='text' value={editableChar||''} style={{width: '19px', height: '20px', border: 'none', textAlign: 'center'}} />
           : (editableChar || '\u00A0')}
       </div>
     );
