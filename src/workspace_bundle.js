@@ -7,7 +7,7 @@ import classnames from 'classnames';
 
 function WorkspaceSelector (state) {
   const {
-    views: {CipheredText, SelectedText, FrequencyAnalysis, Rotor, SchedulingControls, DecipheredText},
+    views: {CipheredText, SelectedText, FrequencyAnalysis, Rotor, SchedulingControls, DecipheredText, HintRequestFeedback},
     actions: {requestHint},
     rotors, editing
   } = state;
@@ -20,13 +20,13 @@ function WorkspaceSelector (state) {
   }
   return {
     CipheredText, SelectedText, FrequencyAnalysis, Rotor, SchedulingControls, DecipheredText,
-    requestHint, hintRequest, nbRotors: rotors.length
+    HintRequestFeedback, requestHint, hintRequest, nbRotors: rotors.length
   };
 }
 
 class Workspace extends React.PureComponent {
   render () {
-    const {CipheredText, SelectedText, FrequencyAnalysis, Rotor, SchedulingControls, DecipheredText, nbRotors, hintRequest} = this.props;
+    const {CipheredText, SelectedText, FrequencyAnalysis, Rotor, SchedulingControls, DecipheredText, nbRotors, hintRequest, HintRequestFeedback} = this.props;
     return (
       <div>
         <h2>{"Message chiffré"}</h2>
@@ -49,6 +49,7 @@ class Workspace extends React.PureComponent {
             <SchedulingControls/>
           </div>
         </div>
+        <HintRequestFeedback/>
         <h2>{"Texte déchiffré"}</h2>
         <DecipheredText/>
       </div>
