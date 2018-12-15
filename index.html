@@ -2,16 +2,14 @@
 <head>
     <meta charset="utf-8">
     <!-- legacy -->
-    <script type="text/javascript" src="bebras-modules/ext/jschannel/jschannel.js"></script>
-    <script type="text/javascript" src="bebras-modules/integrationAPI.01/official/platform-pr.js"></script>
-
-    <script type="text/javascript" src="bebras-modules/ext/jquery/2.1/jquery.min.js"></script>
-    <script type="text/javascript" src="bebras-modules/integrationAPI.01/official/miniPlatform.js"></script>
-    <script type="text/javascript" src="bebras-modules/integrationAPI.01/installationAPI.01/pemFioi/buttonsAndMessages.js"></script>
+    <script class="remove" type="text/javascript" src="bebras-modules/ext/jschannel/jschannel.js"></script>
+    <script class="remove" type="text/javascript" src="bebras-modules/integrationAPI.01/official/platform-pr.js"></script>
+    <script class="remove" type="text/javascript" src="bebras-modules/ext/jquery/2.1/jquery.min.js"></script>
+    <script class="remove" type="text/javascript" src="bebras-modules/integrationAPI.01/official/miniPlatform.js"></script>
 
     <!-- task -->
-    <script src="build/vendor.js"></script>
-    <script src="build/bundle.js"></script>
+    <script src="build/vendor.js?v=2"></script>
+    <script src="build/bundle.js?v=2"></script>
 </head>
 <body>
     <div id="container" class="container"></div>
@@ -19,7 +17,8 @@
         window.stringsLanguage = 'fr';
         var options = {
             server_module: {
-                baseUrl: 'http://castor-v.home.epixode.fr:3101'
+//                baseUrl: 'http://ec2-18-195-154-177.eu-central-1.compute.amazonaws.com/modules/'
+                baseUrl: 'https://static-items.algorea.org/2018-enigma-modules/'
             }
         };
         window.app = ReactTask.run(document.getElementById('container'), options);
