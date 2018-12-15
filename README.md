@@ -111,3 +111,7 @@ The task shows only a part of that text.
     RotorLetterHintRequested
 
 
+
+# Server modules
+
+The folder `server-modules` contains files to be installed with [bebras-server-modules](https://github.com/France-ioi/bebras-server-modules).
