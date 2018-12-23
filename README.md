@@ -1,16 +1,40 @@
+# Installation
+
+1. `git submodule update --init` to install bebras-modules
+2. `npm install` to install dependencies
+3. `npm run-script build` to build the js packages
+4. Add server modules to bebras-server-modules as described below
+5. Install shuffle and range either globally either to the bebras-server-modules folder by running `npm install shuffle range` in that folder.
+6. Edit `options.server_module.baseUrl` in `index.html` to point to the bebras-server-modules installation (by default, it should be `http://your.server:3101/`).
+
+## Server modules installation
+
+The folder `server-modules` contains files to be installed with [bebras-server-modules](https://github.com/France-ioi/bebras-server-modules).
+
+1. Install bebras-server-modules as described in its `README.md`
+2. Copy `server-modules` to a subfolder of bebras-server-modules, for instance `bebras-server-modules/tasks/enigma/`
+3. Add the task to bebras-server-modules, for instance `node command.js tasks:add http://concours-alkindi.fr/tasks/2018/enigma tasks/enigma/index.js`(the task ID `http://concours-alkindi.fr/tasks/2018/enigma` can be changed)
+
+# Usage
+
+Make the files readable by a webserver, and then add the task to a token-generating platform such as [AlgoreaPlatform](https://github.com/France-ioi/AlgoreaPlatform). That platform must be configured to generate tokens using the public key of bebras-server-modules (by default, that public key is stored in `bebras-server-modules/tasks_demo/grader_public.key`).
+
+The URL must contain the task ID set for the server modules, and a version number to select the task difficulty, for instance `http://example.com/alkindi-task-enigma/?taskID=http%3A%2F%2Fconcours-alkindi.fr%2Ftasks%2F2018%2Fenigma&version=1`.
+
+# Task
 
 - task.getState only gets hints, use a selector?
 
 http://concours-alkindi.fr/tasks/2018/enigma
 
-# Generation
+## Generation
 
 Frequency analysis is pre-computed on a larger text.
 The task shows only a part of that text.
 
 
 
-# Views
+## Views
 
 - TextArea
 - DualTextArea
@@ -19,7 +43,7 @@ The task shows only a part of that text.
 - SubstitutionRotor
 - SubstitutionRotorHints
 
-# State
+## State
 
     {
         taskData: {
@@ -88,7 +112,7 @@ The task shows only a part of that text.
         },
     }
 
-# Actions
+## Actions
 
     CipheredText.Resized {width: number, height: number}
 
@@ -112,6 +136,3 @@ The task shows only a part of that text.
 
 
 
-# Server modules
-
-The folder `server-modules` contains files to be installed with [bebras-server-modules](https://github.com/France-ioi/bebras-server-modules).
