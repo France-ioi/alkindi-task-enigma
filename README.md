@@ -21,6 +21,31 @@ Make the files readable by a webserver, and then add the task to a token-generat
 
 The URL must contain the task ID set for the server modules, and a version number to select the task difficulty, for instance `http://example.com/alkindi-task-enigma/?taskID=http%3A%2F%2Fconcours-alkindi.fr%2Ftasks%2F2018%2Fenigma&version=1`.
 
+## Devel options
+
+If `DEV_MODE` is enabled on bebras-server-modules, you can send an object instead of the task token, allowing you to easily test the task outside of any token-generating platform and to use custom data.
+
+This object can be specified through the `options.server_module.devel` variable set in `index.html`, which will be sent to bebras-server-modules instead of the task token if it is present.
+
+These keys will be read by the server :
+* `itemUrl` (required) : full URL of the task, with the task ID and version number as described in the section above
+* `randomSeed` (required) : integer determined the random seed to be used (send the same number each time to test the task with the same data)
+* `sHintsRequested` (optional) : a JSON-encoded array of hints (to be) requested to the server
+
+Example of `options` variable with these devel options :
+```
+var options = {
+    server_module: {
+        baseUrl: 'http://example.com:3101/',
+        devel: {
+            itemUrl: "http://example.com/?taskID=http%3A%2F%2Fconcours-alkindi.fr%2Ftasks%2F2018%2Fenigma&version=1",
+            randomSeed: 1,
+            sHintsRequested: "[{\"rotorIndex\": 0, \"cellRank\": 1}]"
+        }
+    },
+};
+```
+
 # Task
 
 - task.getState only gets hints, use a selector?
