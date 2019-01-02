@@ -32,7 +32,7 @@ const config = module.exports = {
         ]
       },
       {
-        test: /fonts\/.*\.(eot|ttf|svg|woff(2)?)(\?v=\d+\.\d+\.\d+)?/,
+        test: /.*\.(eot|ttf|svg|woff(2)?)(\?v=\d+\.\d+\.\d+)?/,
         use: [
           {loader: 'file-loader', options: {name: 'fonts/[name].[ext]'}}
         ]
