@@ -12,8 +12,8 @@
 The folder `server-modules` contains files to be installed with [bebras-server-modules](https://github.com/France-ioi/bebras-server-modules).
 
 1. Install bebras-server-modules as described in its `README.md`
-2. Copy `server-modules` to a subfolder of bebras-server-modules, for instance `bebras-server-modules/tasks/enigma/`
-3. Add the task to bebras-server-modules, for instance `node command.js tasks:add http://concours-alkindi.fr/tasks/2018/enigma tasks/enigma/index.js`(the task ID `http://concours-alkindi.fr/tasks/2018/enigma` can be changed)
+2. Copy alkindi-task-enigma's subfolder `server-modules` to a subfolder of bebras-server-modules, for instance `bebras-server-modules/tasks/enigma/`
+3. Add the task to bebras-server-modules, for instance go to `bebras-server-modules` folder and then run `node command.js tasks:add http://concours-alkindi.fr/tasks/2018/enigma tasks/enigma/index.js`(the task ID `http://concours-alkindi.fr/tasks/2018/enigma` can be changed)
 
 # Usage
 
