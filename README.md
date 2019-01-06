@@ -9,7 +9,7 @@
 
 ## Server modules installation
 
-The folder `server-modules` contains files to be installed with [bebras-server-modules](https://github.com/France-ioi/bebras-server-modules).
+The folder `server-modules` contains files to be installed with [bebras-server-modules](https://github.com/France-ioi/bebras-server-modules). These files handle the server-side logic of the task. The client-side will communicate with them through bebras-server-modules to fetch task data or hints.
 
 1. Install bebras-server-modules as described in its `README.md`
 2. Copy alkindi-task-enigma's subfolder `server-modules` to a subfolder of bebras-server-modules, for instance `bebras-server-modules/tasks/enigma/`
