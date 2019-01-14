@@ -53,7 +53,10 @@ export default function (container, options, TaskBundle) {
 
     /* Dispatch the appInit action. */
     const query = queryString.parse(location.search);
-    const taskToken = query.sToken;
+    let taskToken = query.sToken;
+    if (taskToken[0] === '{') { // Support for bebras-server-module DEV_MODE
+        taskToken = JSON.parse(taskToken);
+    }
     store.dispatch({type: actions.appInit, payload: {options, taskToken, platform}});
 
     /* Start rendering. */
