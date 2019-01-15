@@ -1,10 +1,12 @@
 # Installation
-
+ 
+From the folder of the task :
+  
 1. `git submodule update --init` to install bebras-modules
 2. `npm install` to install dependencies
 3. `npm run-script build` to build the js packages
 4. Add server modules to bebras-server-modules as described below
-5. Install shuffle and range either globally either to the bebras-server-modules folder by running `npm install shuffle range` in that folder.
+5. Install `shuffle` and `range` either globally either to the bebras-server-modules folder by running `npm install shuffle range` in that folder.
 6. Edit `options.server_module.baseUrl` in `index.html` to point to the bebras-server-modules installation (by default, it should be `http://your.server:3101/`).
 
 ## Server modules installation
@@ -12,8 +14,9 @@
 The folder `server-modules` contains files to be installed with [bebras-server-modules](https://github.com/France-ioi/bebras-server-modules). These files handle the server-side logic of the task. The client-side will communicate with them through bebras-server-modules to fetch task data or hints.
 
 1. Install bebras-server-modules as described in its `README.md`
-2. Copy alkindi-task-enigma's subfolder `server-modules` to a subfolder of bebras-server-modules, for instance `bebras-server-modules/tasks/enigma/`
-3. Add the task to bebras-server-modules, for instance go to `bebras-server-modules` folder and then run `node command.js tasks:add http://concours-alkindi.fr/tasks/2018/enigma tasks/enigma/index.js`(the task ID `http://concours-alkindi.fr/tasks/2018/enigma` can be changed)
+2. From the repository alkindi-task-enigma, copy the files from the subfolder `server-modules` files to a subfolder of bebras-server-modules, for instance `bebras-server-modules/tasks/enigma/`. The folder `bebras-server-modules/tasks/enigma/` should now contain two files, `index.js` and `sentences.js`.
+3. Choose a `TASK_ID` for this task, for instance `alkindi-task-enigma`.
+4. Add the task to bebras-server-modules : from the bebras-server-modules directory, run `node command.js tasks:add TASK_ID TASK_PATH` where you replace `TASK_ID` with the value you chose in the previous step, and `TASK_PATH` with the relative path to the files just copied. If you followed these instructions exactly, the command to run will then be `node command.js tasks:add alkindi-task-enigma tasks/enigma/index.js`
 
 # Usage
 
