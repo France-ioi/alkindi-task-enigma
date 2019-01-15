@@ -1,7 +1,7 @@
 # Installation
- 
+
 From the folder of the task :
-  
+
 1. `git submodule update --init` to install bebras-modules
 2. `npm install` to install dependencies
 3. `npm run-script build` to build the js packages
@@ -20,19 +20,25 @@ The folder `server-modules` contains files to be installed with [bebras-server-m
 
 # Usage
 
-Make the files readable by a webserver, and then add the task to a token-generating platform such as [AlgoreaPlatform](https://github.com/France-ioi/AlgoreaPlatform). That platform must be configured to generate tokens using the public key of bebras-server-modules (by default, that public key is stored in `bebras-server-modules/tasks_demo/grader_public.key`).
+The task can be used in two modes :
 
-The URL must contain the task ID set for the server modules, and a version number to select the task difficulty, for instance `http://example.com/alkindi-task-enigma/?taskID=http%3A%2F%2Fconcours-alkindi.fr%2Ftasks%2F2018%2Fenigma&version=1`.
+* Standalone : the task URL is loaded directly in the browser ; as of now, interaction with the task is limited without using development options (see section below)
+* Through a platform, such as [AlgoreaPlatform](https://github.com/France-ioi/AlgoreaPlatform) : this allows full interaction with the task.
 
-If you want to use the task locally without a platform, you will need to use the development options below.
+## Tokens
 
-## Devel options
+The task uses JSON Web tokens to exchange informations between the platform (if not in standalone mode), the task itself and the bebras-server-modules. It allows for authenticated communication between the components. When used in a platform, the token is passed to the task through the GET parameter `sToken` ; when used in standalone / development mode, the token is replaced with a normal javascript object.
 
-If `DEV_MODE` is enabled on bebras-server-modules, you can send an object instead of the task token, allowing you to easily test the task outside of any token-generating platform and to use custom data.
+## Standalone / Devel options
 
-This object can be specified through the `options.server_module.devel` variable set in `index.html`, which will be sent to bebras-server-modules instead of the task token if it is present.
+The task can be loaded standalone, without a platform, but it will then need development options enabled.
 
-These keys will be read by the server :
+You need to :
+
+1. Enable `DEV_MODE` on bebras-server-modules (in its `.env` configuration file)
+2. Specify the object to be used as a token replacement in `options.server_module.devel` of `index.html`
+
+This object should contain the following keys, which will be read by the bebras-server-modules :
 * `itemUrl` (required) : full URL of the task, with the task ID and version number as described in the section above
 * `randomSeed` (required) : integer determined the random seed to be used (send the same number each time to test the task with the same data)
 * `sHintsRequested` (optional) : a JSON-encoded array of hints (to be) requested to the server
@@ -50,6 +56,15 @@ var options = {
     },
 };
 ```
+
+## Through a platform
+
+Make the files readable by a webserver, and then add the task to a token-generating platform such as [AlgoreaPlatform](https://github.com/France-ioi/AlgoreaPlatform). That platform must be configured to generate tokens using the public key of bebras-server-modules (by default, that public key is stored in `bebras-server-modules/tasks_demo/grader_public.key`).
+
+The URL must contain the task ID set for the server modules, and a version number to select the task difficulty, for instance `http://example.com/alkindi-task-enigma/?taskID=alkindi-task-enigma&version=1`.
+
+If you want to use the task locally without a platform, you will need to use the development options below.
+
 
 # Task
 
