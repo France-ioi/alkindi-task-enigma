@@ -8,6 +8,7 @@ From the folder of the task :
 4. Install bebras-server-modules and add server modules to bebras-server-modules as described below
 5. Install `shuffle` and `range` either globally either to the bebras-server-modules folder by running `npm install shuffle range` in that folder.
 6. Edit `options.server_module.baseUrl` in `index.html` to point to the bebras-server-modules installation (by default, it should be `http://your.server:3101/`).
+7. That's it, you can open `index.html` and the task should appear. You can test it by asking for hints, and validating at the bottom of the page.
 
 ## Server modules installation
 
