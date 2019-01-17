@@ -45,6 +45,7 @@
     "html5shiv": "^3.7.3",
     "immutability-helper": "^2.6.4",
     "json-stable-stringify-without-jsonify": "^1.0.1",
+    "jsonwebtoken": "^8.4.0",
     "object.assign": "^4.0.4",
     "query-string": "^5.0.1",
     "range": "^0.0.3",

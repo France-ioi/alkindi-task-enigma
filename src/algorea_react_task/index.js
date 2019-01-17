@@ -20,6 +20,11 @@ import './ui/styles.css';
 
 import AppBundle from './app_bundle';
 
+// TODO :: Make jwt available for miniPlatform in a much better way
+import jwt from 'jsonwebtoken';
+window.jwt = jwt;
+
+
 export default function (container, options, TaskBundle) {
     const platform = window.platform;
     if (process.env.NODE_ENV === 'development') platform.debug = true;
@@ -51,11 +56,29 @@ export default function (container, options, TaskBundle) {
     }
     start();
 
-    /* Dispatch the appInit action. */
+    /* Check token, taskID and version */
     const query = queryString.parse(location.search);
     let taskToken = query.sToken;
-    if (taskToken[0] === '{') { // Support for bebras-server-module DEV_MODE
-        taskToken = JSON.parse(taskToken);
+
+    if(!query.taskID || !query.version) {
+        if(taskToken) {
+            // We are inside a platform, alert that there is not taskID /
+            // version as it means the task is not configured properly
+            alert("taskID or version missing in the URL, cannot continue.");
+            // Stop there
+            return;
+        }
+        // Redirect when in standalone mode
+        let newSearch = '?';
+        query.taskID = window.options.defaults.taskID;
+        query.version = window.options.defaults.version;
+        for(var key in query) {
+            newSearch += '&' + key + '=' + query[key];
+        }
+        window.location = window.location.origin + window.location.pathname + newSearch;
+    }
+    if(!taskToken) {
+        taskToken = window.task_token.get();
     }
     store.dispatch({type: actions.appInit, payload: {options, taskToken, platform}});
 
