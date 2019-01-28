@@ -62,7 +62,7 @@ module.exports.requestHint = function (args, callback) {
 module.exports.gradeAnswer = function (args, task_data, callback) {
     let {rotors: submittedKeys} = JSON.parse(args.answer.value);
     const {publicData: {alphabet, cipherText, rotors}, privateData: {keys, clearText}} = generateTaskData(args.task);
-    const hints_requested = args.task.hints_requested ? JSON.parse(args.task.hints_requested) : [];
+    const hints_requested = args.answer.hints_requested ? JSON.parse(args.answer.hints_requested) : [];
     submittedKeys = submittedKeys.map(cells => cells.map(i => i === -1 ? ' ' : alphabet[i]).join(''));
     // submittedKeys.map(key => inversePermutation(alphabet, key));
     const evalLength = 200; /* Score on first 200 characters only */
