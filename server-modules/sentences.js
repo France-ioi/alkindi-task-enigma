@@ -1,3 +1,6 @@
+// ***** This file is deprecated and not used anymore. *****
+// It is kept there for reference.
+
 
 module.exports.generate = function (rng, minLength, maxLength, withSpaces) {
    var curLength = 0;

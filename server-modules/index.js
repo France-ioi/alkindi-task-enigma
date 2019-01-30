@@ -4,7 +4,7 @@ var path = require('path');
 var {range} = require('range');
 var seedrandom = require('seedrandom');
 var {shuffle} = require('shuffle');
-var {generate} = require('./sentences');
+var {generate} = require('../bebras-modules/pemFioi/sentences_2');
 
 /* prefer JSON config file at project root?  depend on NODE_ENV? */
 module.exports.config = {
